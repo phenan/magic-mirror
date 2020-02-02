@@ -12,6 +12,16 @@ The `Mirror` provides information about how to construct algebraic data type fro
 
 ## Usage
 
+You should add the following to your `build.sbt`.
+
+```
+resolvers += Resolver.jcenterRepo
+
+libraryDependencies += "com.phenan" %% "dotty-generic" % "0.1.0"
+```
+
+## Sample
+
 ```
 sealed trait Foo
 case class Bar (a: Int, b: String) extends Foo
