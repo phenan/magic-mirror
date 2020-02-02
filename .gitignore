@@ -1,2 +1,8 @@
 *.class
 *.log
+target/
+
+.idea
+
+.dotty-ide.json
+.dotty-ide-artifact
