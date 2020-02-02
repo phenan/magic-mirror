@@ -17,7 +17,7 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "dotty-generic" % "0.1.0"
+libraryDependencies += "com.phenan" %% "dotty-generic" % "0.2.0"
 ```
 
 ## Sample
@@ -36,8 +36,8 @@ val generic = summon[Generic[Bar, (Int, String)]]
 val x: Bar = generic.from((10, "bar"))   // Bar(10, "bar")
 val y: (Int, String) = generic.to(x)     // (10, "bar")
 
-val z: Bar :+: Baz :+: CNil = generic.to(Baz("baz"))    // InR(InL(Baz("baz")))
-val w: Foo = generic.from(z)                            // Baz("baz")
+val z: Bar +: Baz +: CNil = generic.to(Baz("baz"))    // InR(InL(Baz("baz")))
+val w: Foo = generic.from(z)                          // Baz("baz")
 ```
 
 ## Author
