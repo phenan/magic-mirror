@@ -8,12 +8,12 @@ sealed trait CNil extends Coproduct {
   def getUnTypedValue: Any = throw new RuntimeException("getUnTypedValue from CNil")
 }
 
-sealed trait :+: [E, ES <: Coproduct] extends Coproduct
-case class InL [E, ES <: Coproduct] (left: E) extends :+:[E, ES] {
+sealed trait +: [E, ES <: Coproduct] extends Coproduct
+case class InL [E, ES <: Coproduct] (left: E) extends +:[E, ES] {
   def getUnTypedValue: Any = left
 }
 
-case class InR [E, ES <: Coproduct] (right: ES) extends :+:[E, ES] {
+case class InR [E, ES <: Coproduct] (right: ES) extends +:[E, ES] {
   def getUnTypedValue: Any = right.getUnTypedValue
 }
 
@@ -38,10 +38,10 @@ trait Inject [C <: Coproduct, E] {
   def apply (e: E): C
 }
 
-given  [C <: Coproduct, E] : Inject[E :+: C, E] {
-  def apply (e: E): E :+: C = InL(e)
+given  [C <: Coproduct, E] : Inject[E +: C, E] {
+  def apply (e: E): E +: C = InL(e)
 }
 
-given [T, C <: Coproduct, E] (given inject: Inject[C, E]) : Inject[T :+: C, E] {
-  def apply (e: E): T :+: C = InR(inject(e))
+given [T, C <: Coproduct, E] (given inject: Inject[C, E]) : Inject[T +: C, E] {
+  def apply (e: E): T +: C = InR(inject(e))
 }

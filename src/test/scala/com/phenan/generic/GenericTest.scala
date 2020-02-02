@@ -26,13 +26,13 @@ class GenericTest {
   }
 
   @Test def testSumGeneric(): Unit = {
-    val generic = summon[Generic[Foo, Bar :+: Baz :+: CNil]]
+    val generic = summon[Generic[Foo, Bar +: Baz +: CNil]]
 
-    val x: Foo = generic.from(Coproduct[Bar :+: Baz :+: CNil](Bar(30, "foobar")))
+    val x: Foo = generic.from(Coproduct[Bar +: Baz +: CNil](Bar(30, "foobar")))
     assertEquals(x, Bar(30, "foobar"))
 
-    val y: Bar :+: Baz :+: CNil = generic.to(Baz("baz"))
-    assertEquals(y, Coproduct[Bar :+: Baz :+: CNil](Baz("baz")))
+    val y: Bar +: Baz +: CNil = generic.to(Baz("baz"))
+    assertEquals(y, Coproduct[Bar +: Baz +: CNil](Baz("baz")))
   }
 
   @Test def testSingletonGeneric(): Unit = {
