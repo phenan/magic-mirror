@@ -1,6 +1,8 @@
 # dotty-generic
 Implementation of `Generic` in Dotty
 
+[ ![Download](https://api.bintray.com/packages/phenan/maven/dotty-generic/images/download.svg) ](https://bintray.com/phenan/maven/dotty-generic/_latestVersion)
+
 In Scala2, [shapeless](https://github.com/milessabin/shapeless) provides `Generic`.
 `Generic` is a type class that expresses interconversion between algebraic data type and simple data type that is expressed with product and coproduct.
 Shapeless implements it with macros since Scala2 language does not provide any useful information about such interconversion.
