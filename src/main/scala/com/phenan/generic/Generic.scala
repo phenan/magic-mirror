@@ -13,7 +13,7 @@ trait Generic [T, R] {
 object Generic {
   type ProductMirror [T, R <: Product] = Mirror.ProductOf[T] { type MirroredElemTypes = R }
 
-  private class FromProductMirror [T <: Product, R <: Product] (val mirror: ProductMirror[T, R]) extends Generic[T, R] {
+  class FromProductMirror [T <: Product, R <: Product] (val mirror: ProductMirror[T, R]) extends Generic[T, R] {
     def from (r: R): T = {
       mirror.fromProduct(r)
     }
@@ -29,7 +29,7 @@ object Generic {
     case e :+: es => e *: ElementsOfCoproduct[es]
   }
 
-  private class FromSumMirror [T, R <: Coproduct] (val mirror: SumMirror[T, ElementsOfCoproduct[R]]) extends Generic[T, R] {
+  class FromSumMirror [T, R <: Coproduct] (val mirror: SumMirror[T, ElementsOfCoproduct[R]]) extends Generic[T, R] {
     def from (r: R): T = {
       r.getUnTypedValue.asInstanceOf[T]
     }
@@ -41,14 +41,14 @@ object Generic {
 
   type SingletonMirror [T] = Mirror.ProductOf[T] { type MirroredElemTypes = Unit }
 
-  private class FromSingletonMirror [T] (val mirror: SingletonMirror[T]) extends Generic[T, Unit] {
+  class FromSingletonMirror [T] (val mirror: SingletonMirror[T]) extends Generic[T, Unit] {
     def from (r: Unit): T = {
       mirror.fromProduct(EmptyProduct)
     }
     def to (t: T): Unit = ()
   }
-
-  given [T] (given mirror: SingletonMirror[T]): Generic[T, Unit] = new FromSingletonMirror(mirror)
-  given [T <: Product, R <: Product] (given mirror: ProductMirror[T, R]): Generic[T, R] = new FromProductMirror(mirror)
-  given [T, R <: Coproduct] (given mirror: SumMirror[T, ElementsOfCoproduct[R]]): Generic[T, R] = new FromSumMirror(mirror)
 }
+
+given [T] (given mirror: Generic.SingletonMirror[T]): Generic[T, Unit] = new Generic.FromSingletonMirror(mirror)
+given [T <: Product, R <: Product] (given mirror: Generic.ProductMirror[T, R]): Generic[T, R] = new Generic.FromProductMirror(mirror)
+given [T, R <: Coproduct] (given mirror: Generic.SumMirror[T, Generic.ElementsOfCoproduct[R]]): Generic[T, R] = new Generic.FromSumMirror(mirror)

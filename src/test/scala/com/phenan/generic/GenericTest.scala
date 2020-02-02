@@ -1,13 +1,12 @@
-package com.phenen.generic
+package com.phenan.generic
 
 import org.junit.Test
 import org.junit.Assert._
 
 import com.phenan.coproduct._
-import com.phenan.generic.Generic
 
 import com.phenan.coproduct.given
-import Generic.given
+import com.phenan.generic.given
 
 sealed trait Foo
 case class Bar (a: Int, b: String) extends Foo
