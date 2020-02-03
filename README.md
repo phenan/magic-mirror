@@ -17,7 +17,7 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "dotty-generic" % "0.2.0"
+libraryDependencies += "com.phenan" %% "dotty-generic" % "0.2.1"
 ```
 
 ## Sample
