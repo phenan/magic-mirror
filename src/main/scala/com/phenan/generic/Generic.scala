@@ -1,31 +1,25 @@
 package com.phenan.generic
 
 import com.phenan.coproduct._
+import com.phenan.mirror._
+
 import com.phenan.coproduct.given
 
-import scala.deriving.{EmptyProduct, Mirror}
+import scala.deriving.EmptyProduct
 
 trait Generic [T, R] {
   def from (r: R): T
   def to (t: T): R
 }
 
-object Generic {
-  type ProductMirror [T, R <: Product] = Mirror.ProductOf[T] { type MirroredElemTypes = R }
-
-  type SumMirror [T, R] = Mirror.SumOf[T] { type MirroredElemTypes = R }
-
-  type SingletonMirror [T] = Mirror.ProductOf[T] { type MirroredElemTypes = Unit }
-}
-
-given genericFromSingletonMirror [T] (given mirror: Generic.SingletonMirror[T]): Generic[T, Unit] {
+given genericFromSingletonMirror [T] (given mirror: SingletonMirror[T]): Generic[T, Unit] {
   def from (r: Unit): T = {
     mirror.fromProduct(EmptyProduct)
   }
   def to (t: T): Unit = ()
 }
 
-given genericFromProductMirror [T <: Product, R <: Product] (given mirror: Generic.ProductMirror[T, R]): Generic[T, R] {
+given genericFromProductMirror [T <: Product, R <: Product] (given mirror: ProductMirror[T, R]): Generic[T, R] {
   def from (r: R): T = {
     mirror.fromProduct(r)
   }
@@ -34,7 +28,7 @@ given genericFromProductMirror [T <: Product, R <: Product] (given mirror: Gener
   }
 }
 
-given genericFromSumMirror [T, R <: Coproduct] (given mirror: Generic.SumMirror[T, Coproduct.Elements[R]]): Generic[T, R] {
+given genericFromSumMirror [T, R <: Coproduct] (given mirror: SumMirror[T, Coproduct.Elements[R]]): Generic[T, R] {
   def from (r: R): T = {
     r.getUnTypedValue.asInstanceOf[T]
   }
