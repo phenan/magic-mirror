@@ -17,8 +17,8 @@ object Generic {
 
   type SingletonMirror [T] = Mirror.ProductOf[T] { type MirroredElemTypes = Unit }
 
-  type ElementsOfCoproduct[C <: Coproduct] = C match {
-    case CNil    => Product0
+  type ElementsOfCoproduct[C <: Coproduct] <: Tuple = C match {
+    case CNil    => Unit
     case e +: es => e *: ElementsOfCoproduct[es]
   }
 }
