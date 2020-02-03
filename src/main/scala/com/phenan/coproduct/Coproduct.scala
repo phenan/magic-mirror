@@ -32,6 +32,11 @@ object Coproduct {
       else InR(buildUnsafe(ordinal - 1, v).asInstanceOf[Coproduct])
     }
   }
+
+  type Elements [C <: Coproduct] <: Tuple = C match {
+    case CNil    => Unit
+    case e +: es => e *: Elements[es]
+  }
 }
 
 trait Inject [C <: Coproduct, E] {

@@ -16,11 +16,6 @@ object Generic {
   type SumMirror [T, R] = Mirror.SumOf[T] { type MirroredElemTypes = R }
 
   type SingletonMirror [T] = Mirror.ProductOf[T] { type MirroredElemTypes = Unit }
-
-  type ElementsOfCoproduct[C <: Coproduct] <: Tuple = C match {
-    case CNil    => Unit
-    case e +: es => e *: ElementsOfCoproduct[es]
-  }
 }
 
 given genericFromSingletonMirror [T] (given mirror: Generic.SingletonMirror[T]): Generic[T, Unit] {
@@ -39,7 +34,7 @@ given genericFromProductMirror [T <: Product, R <: Product] (given mirror: Gener
   }
 }
 
-given genericFromSumMirror [T, R <: Coproduct] (given mirror: Generic.SumMirror[T, Generic.ElementsOfCoproduct[R]]): Generic[T, R] {
+given genericFromSumMirror [T, R <: Coproduct] (given mirror: Generic.SumMirror[T, Coproduct.Elements[R]]): Generic[T, R] {
   def from (r: R): T = {
     r.getUnTypedValue.asInstanceOf[T]
   }
