@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     organization := "com.phenan",
     name := "dotty-generic",
-    version := "0.2.1",
+    version := "0.3.0",
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
 
     scalaVersion := dottyVersion,
