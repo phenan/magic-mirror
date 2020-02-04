@@ -1,4 +1,4 @@
-package com.phenan.mirror
+package com.phenan.util
 
 import scala.deriving.Mirror
 

@@ -1,7 +1,7 @@
 package com.phenan.generic
 
 import com.phenan.coproduct._
-import com.phenan.mirror._
+import com.phenan.util._
 
 import com.phenan.coproduct.given
 
