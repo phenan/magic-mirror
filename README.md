@@ -61,7 +61,8 @@ val aLens = MirrorLens[Foo, "a"]()
 println(aLens.get(Foo(1, "foo", 2)))     // 1
 println(aLens.set(Foo(1, "foo", 2))(5))  // Foo(5, "foo", 2)
 
-// val dLens = MirrorLens[Foo, "d"]()    // compile error!
+// println(aLens.set(Foo(1, "foo", 2))("foo"))  // compile error!
+// val dLens = MirrorLens[Foo, "d"]()           // compile error!
 ```
 
 ## Author
