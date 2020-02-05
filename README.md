@@ -10,7 +10,7 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "magic-mirror" % "0.3.0"
+libraryDependencies += "com.phenan" %% "magic-mirror" % "0.4.0"
 ```
 
 ## Generic
