@@ -1,7 +1,7 @@
-# dotty-generic
+# magic-mirror
 Implementation of `Generic` and `Lens` in Dotty
 
-[ ![Download](https://api.bintray.com/packages/phenan/maven/dotty-generic/images/download.svg) ](https://bintray.com/phenan/maven/dotty-generic/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/phenan/maven/magic-mirror/images/download.svg) ](https://bintray.com/phenan/maven/magic-mirror/_latestVersion)
 
 ## Usage
 
@@ -44,7 +44,7 @@ val w: Foo = generic.from(z)                          // Baz("baz")
 
 ## Lens
 
-From versin 0.3.0, dotty-generic also support `Lens`.
+From versin 0.3.0, magic-mirror also support `Lens`.
 `Lens` is a type class expressing getter and setter of a field of a data object.
 
 This library provides `Lens` for any field of case classes by utilizing `Mirror`.

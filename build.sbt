@@ -4,7 +4,7 @@ lazy val root = project
   .in(file("."))
   .settings(
     organization := "com.phenan",
-    name := "dotty-generic",
+    name := "magic-mirror",
     version := "0.3.0",
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
 
