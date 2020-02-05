@@ -14,7 +14,7 @@ object MirrorLens {
   }
 }
 
-class MirrorLens [T <: Product, I <: Int, E] (mirror: Mirror.ProductOf[T], valueOf: ValueOf[I]) extends Lens[E, T] {
+class MirrorLens [T <: Product, I <: Int, E] (mirror: Mirror.ProductOf[T], valueOf: ValueOf[I]) extends Lens[T, E] {
   def get (t: T): E = {
     productElement[E](t, valueOf.value)
   }

@@ -4,6 +4,7 @@ import org.junit.Test
 import org.junit.Assert._
 
 case class Foo (a: Int, b: String)
+case class Bar (foo: Foo, n: Int)
 
 class MirrorLensTest {
   @Test def testMirrorLensA(): Unit = {
@@ -24,5 +25,18 @@ class MirrorLensTest {
 
     val y: Foo = lens.set(Foo(1, "foo"))("bar")
     assertEquals(y, Foo(1, "bar"))
+  }
+
+  @Test def testComposeMirrorLens(): Unit = {
+    val bLens = MirrorLens[Foo, "b"]()
+    val fooLens = MirrorLens[Bar, "foo"]()
+
+    val lens = bLens.compose(fooLens)
+
+    val x: String = lens.get(Bar(Foo(2, "foobar"), 3))
+    assertEquals(x, "foobar")
+
+    val y: Bar = lens.set(Bar(Foo(2, "foobar"), 3))("hello")
+    assertEquals(y, Bar(Foo(2, "hello"), 3))
   }
 }
