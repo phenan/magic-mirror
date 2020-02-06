@@ -8,7 +8,7 @@ case class Bar (foo: Foo, n: Int)
 
 class MirrorLensTest {
   @Test def testMirrorLensA(): Unit = {
-    val lens = MirrorLens[Foo, "a"]()
+    val lens = MirrorLens[Foo].a
 
     val x: Int = lens.get(Foo(1, "foo"))
     assertEquals(x.toLong, 1L)
@@ -18,7 +18,7 @@ class MirrorLensTest {
   }
 
   @Test def testMirrorLensB(): Unit = {
-    val lens = MirrorLens[Foo, "b"]()
+    val lens = MirrorLens[Foo].b
 
     val x: String = lens.get(Foo(1, "foo"))
     assertEquals(x, "foo")
@@ -28,8 +28,8 @@ class MirrorLensTest {
   }
 
   @Test def testComposeMirrorLens(): Unit = {
-    val bLens = MirrorLens[Foo, "b"]()
-    val fooLens = MirrorLens[Bar, "foo"]()
+    val bLens = MirrorLens[Foo].b
+    val fooLens = MirrorLens[Bar].foo
 
     val lens = bLens.compose(fooLens)
 

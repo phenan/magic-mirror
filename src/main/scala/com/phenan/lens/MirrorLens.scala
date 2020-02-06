@@ -3,33 +3,24 @@ package com.phenan.lens
 import com.phenan.util._
 
 import scala.deriving._
+import scala.language.dynamics
 
 object MirrorLens {
-  def apply [T <: Product, E] (given mirror: Mirror.ProductOf[T], evidence: E <:< Tuples.UnionOf[mirror.MirroredElemLabels]) : MirrorLensBuilder[T, Tuples.IndexOf[mirror.MirroredElemLabels, E], Tuple.Elem[mirror.MirroredElemTypes, Tuples.IndexOf[mirror.MirroredElemLabels, E]]] = {
-    new MirrorLensBuilder(mirror)
-  }
+  def apply [T <: Product] (given mirror: Mirror.ProductOf[T]): MirrorLensBuilder[T, mirror.MirroredElemTypes, mirror.MirroredElemLabels] = new MirrorLensBuilder(mirror)
 
-  class MirrorLensBuilder [T <: Product, I <: Int, E] (val mirror: Mirror.ProductOf[T]) {
-    def apply ()(given valueOf: ValueOf[I]): MirrorLens[T, I, E] = new MirrorLens(mirror, valueOf)
+  class MirrorLensBuilder [T <: Product, ElemTypes <: Tuple, ElemLabels <: Tuple] (val mirror: Mirror.ProductOf[T]) extends Dynamic {
+    def selectDynamic [L <: Singleton] (label: L)(given proof: L <:< Tuples.UnionOf[ElemLabels], tupleLens: TupleLens[ElemTypes, Tuples.IndexOf[ElemLabels, L]]): MirrorLens[T, ElemTypes, Tuples.IndexOf[ElemLabels, L]] = {
+      new MirrorLens(mirror, tupleLens)
+    }
   }
 }
 
-class MirrorLens [T <: Product, I <: Int, E] (mirror: Mirror.ProductOf[T], valueOf: ValueOf[I]) extends Lens[T, E] {
-  def get (t: T): E = {
-    productElement[E](t, valueOf.value)
+class MirrorLens [T <: Product, ElemTypes <: Tuple, I <: Int] (val mirror: Mirror.ProductOf[T], tupleLens: TupleLens[ElemTypes, I]) extends Lens[T, Tuple.Elem[ElemTypes, I]] {
+  def get (t: T): Tuple.Elem[ElemTypes, I] = {
+    tupleLens.get(Tuple.fromProduct(t).asInstanceOf[ElemTypes])
   }
-  def set (t: T)(e: E): T = {
-    val tuple = update(Tuple.fromProduct(t), valueOf.value, e)
+  def set (t: T)(e: Tuple.Elem[ElemTypes, I]): T = {
+    val tuple = tupleLens.set(Tuple.fromProduct(t).asInstanceOf[ElemTypes])(e)  
     mirror.fromProduct(tuple.asInstanceOf[Product])
   }
-
-  private def update (tuple: Tuple, index: Int, value: Any): Tuple = tuple match {
-    case e *: es =>
-      if (index == 0) value *: es
-      else e *: update(es, index - 1, value)
-    case null =>
-      throw new RuntimeException("invalid member index")
-  }
 }
-
-
