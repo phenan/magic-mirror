@@ -10,7 +10,7 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "magic-mirror" % "0.5.0"
+libraryDependencies += "com.phenan" %% "magic-mirror" % "0.5.1"
 ```
 
 ## Generic
@@ -44,10 +44,20 @@ val w: Foo = generic.from(z)                          // Baz("baz")
 
 ## Lens
 
-From versin 0.3.0, magic-mirror also support `Lens`.
+magic-mirror also support `Lens`.
 `Lens` is a type class expressing getter and setter of a field of a data object.
 
 This library provides `Lens` for any field of case classes by utilizing `Mirror`.
+
+If you want to get `Lens` for field `x` of algebraic data type `Foo`, you should simply call `MirrorLens[Foo].x`.
+You can also get `Lens` of nested object with this dot-notation.
+For example, `MirrorLens[Foo].bar.baz` returns `Lens[Foo, Baz]` for the following definition.
+
+```
+case class Foo (bar: Bar, x: Int)
+case class Bar (baz: baz)
+case class Baz (n: Int, s: String)
+```
 
 ### Sample
 
