@@ -55,14 +55,15 @@ This library provides `Lens` for any field of case classes by utilizing `Mirror`
 case class Foo (a: Int, b: String, c: Int)
 
 import com.phenan.lens._
+import com.phenan.lens.given
 
-val aLens = MirrorLens[Foo, "a"]()
+val aLens = MirrorLens[Foo].a
 
 println(aLens.get(Foo(1, "foo", 2)))     // 1
 println(aLens.set(Foo(1, "foo", 2))(5))  // Foo(5, "foo", 2)
 
 // println(aLens.set(Foo(1, "foo", 2))("foo"))  // compile error!
-// val dLens = MirrorLens[Foo, "d"]()           // compile error!
+// val dLens = MirrorLens[Foo].d                // compile error!
 ```
 
 ## Author
