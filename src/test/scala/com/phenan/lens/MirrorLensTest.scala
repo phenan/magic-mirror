@@ -39,4 +39,14 @@ class MirrorLensTest {
     val y: Bar = lens.set(Bar(Foo(2, "foobar"), 3))("hello")
     assertEquals(y, Bar(Foo(2, "hello"), 3))
   }
+
+  @Test def testNestedMirrorLens(): Unit = {
+    val lens = MirrorLens[Bar].foo.b
+
+    val x: String = lens.get(Bar(Foo(2, "foobar"), 3))
+    assertEquals(x, "foobar")
+
+    val y: Bar = lens.set(Bar(Foo(2, "foobar"), 3))("hello")
+    assertEquals(y, Bar(Foo(2, "hello"), 3))
+  }
 }
