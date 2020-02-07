@@ -3,9 +3,8 @@ package com.phenan.generic
 import org.junit.Test
 import org.junit.Assert._
 
-import com.phenan.coproduct._
+import com.phenan.util._
 
-import com.phenan.coproduct.given
 import com.phenan.generic.given
 
 sealed trait Foo
@@ -26,13 +25,13 @@ class GenericTest {
   }
 
   @Test def testSumGeneric(): Unit = {
-    val generic = summon[Generic[Foo, Bar +: Baz +: CNil]]
+    val generic = summon[Generic[Foo, Union[(Bar, Baz)]]]
 
-    val x: Foo = generic.from(Coproduct[Bar +: Baz +: CNil](Bar(30, "foobar")))
+    val x: Foo = generic.from(Bar(30, "foobar"))
     assertEquals(x, Bar(30, "foobar"))
 
-    val y: Bar +: Baz +: CNil = generic.to(Baz("baz"))
-    assertEquals(y, Coproduct[Bar +: Baz +: CNil](Baz("baz")))
+    val y: Bar | Baz = generic.to(Baz("baz"))
+    assertEquals(y, Baz("baz"))
   }
 
   @Test def testSingletonGeneric(): Unit = {

@@ -1,9 +1,6 @@
 package com.phenan.generic
 
-import com.phenan.coproduct._
 import com.phenan.util._
-
-import com.phenan.coproduct.given
 
 import scala.deriving.EmptyProduct
 
@@ -28,12 +25,11 @@ given genericFromProductMirror [T <: Product, R <: Product] (given mirror: Produ
   }
 }
 
-given genericFromSumMirror [T, R <: Coproduct] (given mirror: SumMirror[T, Coproduct.Elements[R]]): Generic[T, R] {
-  def from (r: R): T = {
-    r.getUnTypedValue.asInstanceOf[T]
+given genericFromSumMirror [T, R <: NonEmptyTuple] (given mirror: SumMirror[T, R]): Generic[T, Union[R]] {
+  def from (r: Union[R]): T = {
+    r.asInstanceOf[T]
   }
-  def to (t: T): R = {
-    val ordinal = mirror.ordinal(t.asInstanceOf[mirror.MirroredMonoType])
-    Coproduct[R].applyUnsafe(ordinal, t)
+  def to (t: T): Union[R] = {
+    t.asInstanceOf[Union[R]]
   }
 }
