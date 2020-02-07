@@ -10,17 +10,23 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "magic-mirror" % "0.5.2"
+libraryDependencies += "com.phenan" %% "magic-mirror" % "0.6.0"
 ```
 
 ## Generic
 
-In Scala2, [shapeless](https://github.com/milessabin/shapeless) provides `Generic`.
-`Generic` is a type class that expresses interconversion between algebraic data type and simple data type expressed with product and coproduct.
-Shapeless implements it with macros since Scala2 language does not provide any useful information about such interconversion.
+`Generic` is a type class that expresses interconversion between algebraic data type and simple data type expressed with product and union.
+It is useful for various situation. 
+For example, we can easily implement serializer and deserializer with `Generic` because we can construct and destruct different data types in the same fashion.
 
-Dotty supports `Mirror` type class for type class derivation.
-The `Mirror` provides information about how to construct algebraic data type from product of its elements, so we can implement `Generic` without macros by utilizing `Mirror`.
+In Scala2, [shapeless](https://github.com/milessabin/shapeless) provides implementation of `Generic`.
+`Generic` in shapeless is implemented by macros, and the deconstructed data type is expressed by `HList` and `Coproduct`.
+This is also useful, however, `HList` and `Coproduct` are not common in Scala, so it is not convenient for normal users.
+
+magic-mirror provides `Generic` that is based on `Mirror`.
+`Mirror` is a reflection API in Dotty.
+The deconstructed data type of `Generic` in magic-mirror is expressed by `Tuple` and `Union`.
+Both `Tuple` and `Union` is standard data type in Dotty, so programmers can easily to use it.
 
 ### Sample
 
@@ -29,17 +35,19 @@ sealed trait Foo
 case class Bar (a: Int, b: String) extends Foo
 case class Baz (c: String) extends Foo
 
-import com.phenan.coproduct._
 import com.phenan.generic._
+import com.phenan.util._
 import com.phenan.generic.given
 
-val generic = summon[Generic[Bar, (Int, String)]]
+val generic1 = summon[Generic[Bar, (Int, String)]]
 
-val x: Bar = generic.from((10, "bar"))   // Bar(10, "bar")
-val y: (Int, String) = generic.to(x)     // (10, "bar")
+val x: Bar = generic1.from((10, "bar"))     // Bar(10, "bar")
+val y: (Int, String) = generic1.to(x)       // (10, "bar")
 
-val z: Bar +: Baz +: CNil = generic.to(Baz("baz"))    // InR(InL(Baz("baz")))
-val w: Foo = generic.from(z)                          // Baz("baz")
+val generic2 = summon[Generic[Foo, Union[(Bar, Baz)]]]
+
+val z: Bar | Baz = generic2.to(Baz("baz"))  // Baz("baz") : Bar | Baz
+val w: Foo = generic2.from(z)               // Baz("baz") : Foo
 ```
 
 ## Lens
