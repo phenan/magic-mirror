@@ -7,9 +7,4 @@ object Tuples {
     case e *: es => IfEq[e, E, 0, S[IndexOf[es, E]]]
     case Unit    => 1
   }
-
-  type UnionOf [T <: Tuple] = T match {
-    case e *: es => e | UnionOf[es]
-    case Unit    => Void
-  }
 }
