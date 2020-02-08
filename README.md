@@ -76,6 +76,7 @@ case class Foo (a: Int, b: String, c: Int)
 
 import com.phenan.lens._
 import com.phenan.lens.{given _}
+import com.phenan.util.{given _}
 
 val aLens = MirrorLens[Foo].a
 

@@ -3,6 +3,8 @@ package com.phenan.lens
 import org.junit.Test
 import org.junit.Assert._
 
+import com.phenan.util.{given _}
+
 case class Foo (a: Int, b: String)
 case class Bar (foo: Foo, n: Int)
 

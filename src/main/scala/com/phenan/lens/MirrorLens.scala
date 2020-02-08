@@ -10,7 +10,7 @@ object MirrorLens {
   def apply [T <: Product] (using mirror: Mirror.ProductOf[T]): MirrorLensBuilder[T, mirror.MirroredElemTypes, mirror.MirroredElemLabels] = new MirrorLensBuilder(mirror)
 
   class MirrorLensBuilder [T <: Product, ElemTypes <: Tuple, ElemLabels <: Tuple] (mirror: Mirror.ProductOf[T]) extends Dynamic {
-    def selectDynamic [L <: Singleton] (label: L)(using proof: L <:< UnionOrVoid[ElemLabels], tupleLens: TupleLens[ElemTypes, Tuples.IndexOf[ElemLabels, L]]): MirrorLens[T, ElemTypes, Tuples.IndexOf[ElemLabels, L], Tuple.Elem[ElemTypes, Tuples.IndexOf[ElemLabels, L]]] = {
+    def selectDynamic [L <: Singleton] (label: L)(using contain: Tuples.Contain[ElemLabels, L], tupleLens: TupleLens[ElemTypes, Tuples.IndexOf[ElemLabels, L]]): MirrorLens[T, ElemTypes, Tuples.IndexOf[ElemLabels, L], Tuple.Elem[ElemTypes, Tuples.IndexOf[ElemLabels, L]]] = {
       new MirrorLens(mirror, tupleLens)
     }
   }
@@ -28,7 +28,7 @@ class MirrorLens [T, ElemTypes <: Tuple, I <: Int, ElemType] (mirror: Mirror.Pro
     fromTuple(tupleLens.set(toTuple(t))(e.asInstanceOf))
   }
 
-  def selectDynamic [L <: Singleton] (label: L)(using m: Mirror.ProductOf[ElemType], proof: L <:< UnionOrVoid[m.MirroredElemLabels], lens: TupleLens[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]): Lens[T, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = {
+  def selectDynamic [L <: Singleton] (label: L)(using m: Mirror.ProductOf[ElemType], contain: Tuples.Contain[m.MirroredElemLabels, L], lens: TupleLens[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]): Lens[T, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = {
     val mirrorLens: Lens[ElemType, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = new MirrorLens[ElemType, m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L], Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]](m, lens)
     mirrorLens.compose(this)
   }
