@@ -5,8 +5,6 @@ import org.junit.Assert._
 
 import com.phenan.util._
 
-import com.phenan.generic.given
-
 sealed trait Foo
 case class Bar (a: Int, b: String) extends Foo
 case class Baz (c: String) extends Foo
