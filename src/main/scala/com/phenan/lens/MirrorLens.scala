@@ -7,32 +7,22 @@ import scala.deriving._
 import scala.language.dynamics
 
 object MirrorLens {
-  def apply [T <: Product] (using mirror: Mirror.ProductOf[T]): MirrorLensBuilder[T, mirror.MirroredElemTypes, mirror.MirroredElemLabels] = new MirrorLensBuilder(mirror)
-
-  class MirrorLensBuilder [T <: Product, ElemTypes <: Tuple, ElemLabels <: Tuple] (mirror: Mirror.ProductOf[T]) extends Dynamic {
-    def selectDynamic [L <: Singleton] (label: L)(using contain: Tuples.Contain[ElemLabels, L], tupleLens: TupleLens[ElemTypes, Tuples.IndexOf[ElemLabels, L]]): MirrorLens[T, ElemTypes, Tuples.IndexOf[ElemLabels, L], Tuple.Elem[ElemTypes, Tuples.IndexOf[ElemLabels, L]]] = {
-      new MirrorLens(mirror, tupleLens)
-    }
-  }
+  def apply [T <: Product]: MirrorLens[T, T] = new MirrorLens(new StandardLens[T, T] (identity, _ => identity))
 }
 
-class MirrorLens [T, ElemTypes <: Tuple, I <: Int, ElemType] (mirror: Mirror.ProductOf[T], tupleLens: TupleLens[ElemTypes, I]) extends Lens[T, ElemType] with Dynamic {
-  override def runLens [F[_] : Functor] (a: T, f: ElemType => F[ElemType]): F[T] = {
-    tupleLens.runLens(toTuple(a), f.asInstanceOf[Tuple.Elem[ElemTypes, I] => F[Tuple.Elem[ElemTypes, I]]]).map(fromTuple)
-  }
+class MirrorLens [T, E] (lens: Lens[T, E]) extends Lens[T, E] with Dynamic {
+  export lens._
 
-  override def get (t: T): ElemType = {
-    tupleLens.get(toTuple(t)).asInstanceOf[ElemType]
-  }
-  override def set (t: T)(e: ElemType): T = {
-    fromTuple(tupleLens.set(toTuple(t))(e.asInstanceOf))
-  }
+  def selectDynamic [L <: Singleton] (label: L)(using m: Mirror.ProductOf[E], contain: Tuples.Contain[m.MirroredElemLabels, L], tupleLens: TupleLens[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]): MirrorLens[T, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = {
+    type ElemTypes = m.MirroredElemTypes
+    type ElemType = Tuple.Elem[ElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]
 
-  def selectDynamic [L <: Singleton] (label: L)(using m: Mirror.ProductOf[ElemType], contain: Tuples.Contain[m.MirroredElemLabels, L], lens: TupleLens[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]): Lens[T, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = {
-    val mirrorLens: Lens[ElemType, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = new MirrorLens[ElemType, m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L], Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]](m, lens)
-    mirrorLens.compose(this)
-  }
+    def toTuple (a: E): ElemTypes = Tuple.fromProduct(a.asInstanceOf[Product]).asInstanceOf[ElemTypes]
+    def fromTuple (e: ElemTypes): E = m.fromProduct(e.asInstanceOf[Product])
 
-  private def toTuple (a: T): ElemTypes = Tuple.fromProduct(a.asInstanceOf[Product]).asInstanceOf[ElemTypes]
-  private def fromTuple (e: ElemTypes): T = mirror.fromProduct(e.asInstanceOf[Product])
+    def get (t: E): ElemType = tupleLens.get(toTuple(t)).asInstanceOf[ElemType]
+    def set (t: E)(e: ElemType): E = fromTuple(tupleLens.set(toTuple(t))(e.asInstanceOf))
+    
+    new MirrorLens(new StandardLens[E, ElemType](get, set).compose(this))  
+  }
 }
