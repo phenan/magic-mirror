@@ -13,6 +13,8 @@ resolvers += Resolver.jcenterRepo
 libraryDependencies += "com.phenan" %% "magic-mirror" % "0.6.1"
 ```
 
+This library is developped on Dotty version 0.22.0-RC1.
+
 ## Generic
 
 `Generic` is a type class that expresses interconversion between algebraic data type and simple data type expressed with product and union.
@@ -37,7 +39,7 @@ case class Baz (c: String) extends Foo
 
 import com.phenan.generic._
 import com.phenan.util._
-import com.phenan.generic.given
+import com.phenan.generic.{given _}
 
 val generic1 = summon[Generic[Bar, (Int, String)]]
 
@@ -73,7 +75,7 @@ case class Baz (n: Int, s: String)
 case class Foo (a: Int, b: String, c: Int)
 
 import com.phenan.lens._
-import com.phenan.lens.given
+import com.phenan.lens.{given _}
 
 val aLens = MirrorLens[Foo].a
 
