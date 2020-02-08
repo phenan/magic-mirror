@@ -4,22 +4,12 @@ import com.phenan.classes._
 
 import scala.compiletime._
 
-trait TupleLens [T <: Tuple, I <: Int] extends Lens[T, Tuple.Elem[T, I]]
+class TupleLens [T <: Tuple, I <: Int] (getter: T => Tuple.Elem[T, I], setter: T => Tuple.Elem[T, I] => T) extends StandardLens[T, Tuple.Elem[T, I]](getter, setter)
 
-given TupleHeadLens [T <: NonEmptyTuple] : TupleLens[T, 0] {
-  override def runLens [F[_] : Functor] (a: T, f: Tuple.Elem[T, 0] => F[Tuple.Elem[T, 0]]): F[T] = {
-    f(a.head).map(e => (e *: a.tail).asInstanceOf[T])
-  }
-
-  override def get (a: T): Tuple.Elem[T, 0] = a.head
-  override def set (a: T)(b: Tuple.Elem[T, 0]): T = (b *: a.tail).asInstanceOf
+given TupleHeadLens [H, T <: Tuple] : TupleLens[H *: T, 0] = {
+  new TupleLens[H *: T, 0] (a => a.head, a => b => (b *: a.tail))
 }
 
-given TupleTailLens [A, T <: Tuple, I <: Int] (using tailLens: TupleLens[T, I]) : TupleLens[A *: T, S[I]] {
-  override def runLens [F[_] : Functor] (a: A *: T, f: Tuple.Elem[A *: T, S[I]] => F[Tuple.Elem[A *: T, S[I]]]): F[A *: T] = {
-    tailLens.runLens(a.tail, f.asInstanceOf[Tuple.Elem[T, I] => F[Tuple.Elem[T, I]]]).map(a.head *: _)
-  }
-
-  override def get (a: A *: T): Tuple.Elem[A *: T, S[I]] = tailLens.get(a.tail).asInstanceOf
-  override def set (a: A *: T)(b: Tuple.Elem[A *: T, S[I]]): A *: T = a.head *: tailLens.set(a.tail)(b.asInstanceOf)
+given TupleTailLens [A, T <: Tuple, I <: Int] (using tailLens: TupleLens[T, I]) : TupleLens[A *: T, S[I]] = {
+  new TupleLens[A *: T, S[I]] (a => tailLens.get(a.tail).asInstanceOf, a => b => a.head *: tailLens.set(a.tail)(b.asInstanceOf))
 }
