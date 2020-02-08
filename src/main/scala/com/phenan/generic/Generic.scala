@@ -1,35 +1,23 @@
 package com.phenan.generic
 
+import com.phenan.classes._
 import com.phenan.util._
 
 import scala.deriving.EmptyProduct
 
-trait Generic [T, R] {
-  def from (r: R): T
-  def to (t: T): R
-}
+trait Generic [T, R] extends <=>[R, T]
 
 given genericFromSingletonMirror [T] (given mirror: SingletonMirror[T]): Generic[T, Unit] {
-  def from (r: Unit): T = {
-    mirror.fromProduct(EmptyProduct)
-  }
-  def to (t: T): Unit = ()
+  def from: Unit => T = _ => mirror.fromProduct(EmptyProduct)
+  def to: T => Unit = _ => ()
 }
 
 given genericFromProductMirror [T <: Product, R <: Product] (given mirror: ProductMirror[T, R]): Generic[T, R] {
-  def from (r: R): T = {
-    mirror.fromProduct(r)
-  }
-  def to (t: T): R = {
-    Tuple.fromProductTyped(t)(given mirror)
-  }
+  def from: R => T = mirror.fromProduct
+  def to: T => R = Tuple.fromProductTyped
 }
 
 given genericFromSumMirror [T, R <: NonEmptyTuple] (given mirror: SumMirror[T, R]): Generic[T, Union[R]] {
-  def from (r: Union[R]): T = {
-    r.asInstanceOf[T]
-  }
-  def to (t: T): Union[R] = {
-    t.asInstanceOf[Union[R]]
-  }
+  def from: Union[R] => T = _.asInstanceOf[T]
+  def to: T => Union[R] = _.asInstanceOf[Union[R]]
 }
