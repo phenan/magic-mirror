@@ -1,5 +1,6 @@
 package com.phenan.lens
 
+import com.phenan.classes._
 import com.phenan.util._
 
 import scala.deriving._
@@ -16,16 +17,22 @@ object MirrorLens {
 }
 
 class MirrorLens [T, ElemTypes <: Tuple, I <: Int, ElemType] (mirror: Mirror.ProductOf[T], tupleLens: TupleLens[ElemTypes, I]) extends Lens[T, ElemType] with Dynamic {
-  def get (t: T): ElemType = {
-    tupleLens.get(Tuple.fromProduct(t.asInstanceOf[Product]).asInstanceOf[ElemTypes]).asInstanceOf[ElemType]
+  override def runLens [F[_] : Functor] (a: T, f: ElemType => F[ElemType]): F[T] = {
+    tupleLens.runLens(toTuple(a), f.asInstanceOf[Tuple.Elem[ElemTypes, I] => F[Tuple.Elem[ElemTypes, I]]]).map(fromTuple)
   }
-  def set (t: T)(e: ElemType): T = {
-    val tuple = tupleLens.set(Tuple.fromProduct(t.asInstanceOf[Product]).asInstanceOf[ElemTypes])(e.asInstanceOf)  
-    mirror.fromProduct(tuple.asInstanceOf[Product])
+
+  override def get (t: T): ElemType = {
+    tupleLens.get(toTuple(t)).asInstanceOf[ElemType]
+  }
+  override def set (t: T)(e: ElemType): T = {
+    fromTuple(tupleLens.set(toTuple(t))(e.asInstanceOf))
   }
 
   def selectDynamic [L <: Singleton] (label: L)(given m: Mirror.ProductOf[ElemType], proof: L <:< UnionOrVoid[m.MirroredElemLabels], lens: TupleLens[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]): Lens[T, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = {
     val mirrorLens: Lens[ElemType, Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]] = new MirrorLens[ElemType, m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L], Tuple.Elem[m.MirroredElemTypes, Tuples.IndexOf[m.MirroredElemLabels, L]]](m, lens)
     mirrorLens.compose(this)
   }
+
+  private def toTuple (a: T): ElemTypes = Tuple.fromProduct(a.asInstanceOf[Product]).asInstanceOf[ElemTypes]
+  private def fromTuple (e: ElemTypes): T = mirror.fromProduct(e.asInstanceOf[Product])
 }
