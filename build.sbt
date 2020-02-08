@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     organization := "com.phenan",
     name := "magic-mirror",
-    version := "0.6.1",
+    version := "0.6.2",
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
 
     scalaVersion := dottyVersion,
