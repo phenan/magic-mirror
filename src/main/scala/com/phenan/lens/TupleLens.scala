@@ -15,7 +15,7 @@ given TupleHeadLens [T <: NonEmptyTuple] : TupleLens[T, 0] {
   override def set (a: T)(b: Tuple.Elem[T, 0]): T = (b *: a.tail).asInstanceOf
 }
 
-given TupleTailLens [A, T <: Tuple, I <: Int] (given tailLens: TupleLens[T, I]) : TupleLens[A *: T, S[I]] {
+given TupleTailLens [A, T <: Tuple, I <: Int] (using tailLens: TupleLens[T, I]) : TupleLens[A *: T, S[I]] {
   override def runLens [F[_] : Functor] (a: A *: T, f: Tuple.Elem[A *: T, S[I]] => F[Tuple.Elem[A *: T, S[I]]]): F[A *: T] = {
     tailLens.runLens(a.tail, f.asInstanceOf[Tuple.Elem[T, I] => F[Tuple.Elem[T, I]]]).map(a.head *: _)
   }
