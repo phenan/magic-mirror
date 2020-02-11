@@ -10,7 +10,7 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "magic-mirror" % "0.7.1"
+libraryDependencies += "com.phenan" %% "magic-mirror" % "0.8.0"
 ```
 
 This library is developped on Dotty version 0.22.0-RC1.
@@ -29,6 +29,9 @@ magic-mirror provides `Generic` that is based on `Mirror`.
 `Mirror` is a reflection API in Dotty.
 The deconstructed data type of `Generic` in magic-mirror is expressed by `Tuple` and `Union`.
 Both `Tuple` and `Union` is standard data type in Dotty, so programmers can easily to use it.
+magic-mirror also support `Generic` with `Coproduct` instead of `Union` because `Coproduct` is more powerful than `Union`.
+In fact, we can convert any `Coproduct` into `Union` but cannot convert `Union` into `Coproduct`.
+
 
 ### Sample
 
