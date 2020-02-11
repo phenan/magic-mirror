@@ -21,7 +21,7 @@ given genericFromSumMirror [T, R <: NonEmptyTuple] (using mirror: Mirror.SumOf[T
   def to: T => Union[R] = _.asInstanceOf[Union[R]]
 }
 
-given genericOrdinalUnionFromSumMirror [T, R <: NonEmptyTuple] (using mirror: Mirror.SumOf[T], proof: mirror.MirroredElemTypes =:= R, length: ValueOf[Tuple.Size[R]]): Generic[T, OrdinalUnion[R]] {
-  def from: OrdinalUnion[R] => T = _.value.asInstanceOf[T]
-  def to: T => OrdinalUnion[R] = t => OrdinalUnion.buildUnsafe[R](t.asInstanceOf[Union[R]], mirror.ordinal(t), length.value)
+given coproductGenericFromSumMirror [T, R <: NonEmptyTuple] (using mirror: Mirror.SumOf[T], proof: mirror.MirroredElemTypes =:= R): Generic[T, Coproduct.Of[R]] {
+  def from: Coproduct.Of[R] => T = c => Coproduct.toUnion[R](c).asInstanceOf[T]
+  def to: T => Coproduct.Of[R] = t => Coproduct.fromUnion[R](t.asInstanceOf[Union[R]], mirror.ordinal(t))
 }

@@ -16,16 +16,10 @@ given optionSemiringalInvariantFunctor : SemiringalInvariantFunctor[Option] {
 
   def pure [A] (a: => A): Option[A] = Some(a)
 
-  def sum [T <: NonEmptyTuple] (tuple: Tuple.Map[T, Option]): Option[OrdinalUnion[T]] = {
-    val array = tuple.toArray 
-    sumHelper(array, 0, array.size)
-  }
+  def zero: Option[CNil] = None
 
-  private def sumHelper [T <: NonEmptyTuple] (tuple: Array[Object], index: Int, length: Int): Option[OrdinalUnion[T]] = {
-    if (index < length) tuple(index) match {
-      case Some(u) => Some(OrdinalUnion.buildUnsafe[T](u.asInstanceOf[Union[T]], index, length))
-      case _       => sumHelper(tuple, index + 1, length)
-    } else None
+  def sum [A, B <: Tuple] (fa: => Option[A], fb: => Option[Coproduct.Of[B]]): Option[Coproduct.Of[A *: B]] = {
+    fa.map(a => Coproduct.Of[A *: B](a)).orElse(fb.map(InRight(_)))
   }
 
   def xmap [A, B] (f: A <=> B): Option[A] <=> Option[B] = new Iso[Function1, Option[A], Option[B]] {
