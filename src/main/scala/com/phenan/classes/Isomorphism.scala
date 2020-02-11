@@ -13,3 +13,8 @@ object Iso {
 }
 
 type <=> [A, B] = Iso[Function1, A, B]
+
+given identityIsomorphism[A]: <=> [A, A] = new Iso[Function1, A, A] {
+  def from: A => A = identity
+  def to: A => A = identity
+}
