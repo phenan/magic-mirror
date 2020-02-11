@@ -17,7 +17,27 @@ def [F[_], T1, R] (sc: StringContext) w (t1: F[T1])(using processor: TextProcess
   discardLeft(processor.processString(part0), construct[F, Tuple1[T1], R](Tuple1(f1)))
 }
 
-def [F[_], T <: Tuple, R] (sc: StringContext) w2 (ts: Tuple.Map[T, F])(using processor: TextProcessor[F], iso: T <=> R, joiner: TextProcessorJoiner[T, F]): F[R] = {
+def [F[_], T1, T2, R] (sc: StringContext) w (t1: F[T1], t2: F[T2])(using processor: TextProcessor[F], iso: (T1, T2) <=> R): F[R] = {
+  buildProcessor[F, (T1, T2), R](sc, (t1, t2))
+}
+
+def [F[_], T1, T2, T3, R] (sc: StringContext) w (t1: F[T1], t2: F[T2], t3: F[T3])(using processor: TextProcessor[F], iso: (T1, T2, T3) <=> R): F[R] = {
+  buildProcessor[F, (T1, T2, T3), R](sc, (t1, t2, t3))
+}
+
+def [F[_], T1, T2, T3, T4, R] (sc: StringContext) w (t1: F[T1], t2: F[T2], t3: F[T3], t4: F[T4])(using processor: TextProcessor[F], iso: (T1, T2, T3, T4) <=> R): F[R] = {
+  buildProcessor[F, (T1, T2, T3, T4), R](sc, (t1, t2, t3, t4))
+}
+
+def [F[_], T1, T2, T3, T4, T5, R] (sc: StringContext) w (t1: F[T1], t2: F[T2], t3: F[T3], t4: F[T4], t5: F[T5])(using processor: TextProcessor[F], iso: (T1, T2, T3, T4, T5) <=> R): F[R] = {
+  buildProcessor[F, (T1, T2, T3, T4, T5), R](sc, (t1, t2, t3, t4, t5))
+}
+
+def [F[_], T1, T2, T3, T4, T5, T6, R] (sc: StringContext) w (t1: F[T1], t2: F[T2], t3: F[T3], t4: F[T4], t5: F[T5], t6: F[T6])(using processor: TextProcessor[F], iso: (T1, T2, T3, T4, T5, T6) <=> R): F[R] = {
+  buildProcessor[F, (T1, T2, T3, T4, T5, T6), R](sc, (t1, t2, t3, t4, t5, t6))
+}
+
+private def buildProcessor [F[_], T <: Tuple, R] (sc: StringContext, ts: Tuple.Map[T, F])(using processor: TextProcessor[F], iso: T <=> R, joiner: TextProcessorJoiner[T, F]): F[R] = {
   val parts = sc.parts.map(processor.processString)
   val joined = joiner(ts, parts.tail)
   discardLeft(parts.head, processor.xmap(iso).from(joined))

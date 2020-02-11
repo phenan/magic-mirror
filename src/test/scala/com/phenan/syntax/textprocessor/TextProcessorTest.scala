@@ -8,8 +8,8 @@ import com.phenan.util._
 import org.junit.Test
 import org.junit.Assert._
 
-class SimplePrinter[T] (print: T => Unit) {
-  def runPrinter (value: T): Unit = print(value)
+class SimplePrinter[T] (print: T => String) {
+  def runPrinter (value: T): String = print(value)
 }
 
 given simplePrinterTextProcessor : TextProcessor[SimplePrinter] {
@@ -19,21 +19,18 @@ given simplePrinterTextProcessor : TextProcessor[SimplePrinter] {
   }
 
   def product [A, B <: Tuple] (a: => SimplePrinter[A], b: => SimplePrinter[B]): SimplePrinter[A *: B] = new SimplePrinter ({ tuple =>
-    a.runPrinter(tuple.head)
-    b.runPrinter(tuple.tail)
+    a.runPrinter(tuple.head) + b.runPrinter(tuple.tail)
   })
   
-  def pure [A] (a: => A): SimplePrinter[A] = new SimplePrinter(_ => ())
+  def pure [A] (a: => A): SimplePrinter[A] = new SimplePrinter(_ => "")
 
   def sum [A, B <: Tuple] (fa: => SimplePrinter[A], fb: => SimplePrinter[Coproduct.Of[B]]): SimplePrinter[Coproduct.Of[A *: B]] = {
     new SimplePrinter (_.fold(fa.runPrinter)(fb.runPrinter))
   }
   
-  def zero: SimplePrinter[CNil] = new SimplePrinter(_ => ())
+  def zero: SimplePrinter[CNil] = new SimplePrinter(_ => "")
 
-  def processString (string: String): SimplePrinter[Unit] = new SimplePrinter[Unit] ({ _ =>
-    println(string)
-  })
+  def processString (string: String): SimplePrinter[Unit] = new SimplePrinter[Unit] ({ _ => string })
 }
 
 case object Foo
@@ -45,9 +42,8 @@ case class Baz (foo: Foo.type, bar: Bar)
 class TextProcessorTest {
   @Test def testPrintSimpleString(): Unit = {
     val foo: SimplePrinter[Foo.type] = w"foo"
-    val bar: SimplePrinter[Bar] = w"bar$foo"
-    //val baz: SimplePrinter[Baz] = w2"baz $foo hoge $bar"
-    val baz: SimplePrinter[Baz] = new StringContext("baz ", " hoge ").w2[SimplePrinter, (Foo.type, Bar), Baz](foo, bar)
-    //baz.runPrinter(Baz(Foo, Bar(Foo)))
+    val bar: SimplePrinter[Bar] = w"bar $foo"
+    val baz: SimplePrinter[Baz] = w"baz $foo hoge $bar"
+    assertEquals(baz.runPrinter(Baz(Foo, Bar(Foo))), "baz foo hoge bar foo")
   }
 }
