@@ -1,6 +1,7 @@
 package com.phenan.classes
 
+import com.phenan.util._
+
 trait Semiringal [F[_]] extends Monoidal[F] {
-  def sum [A, B] (a: => F[A], b: => F[B]): F[A | B]
-  def zero: F[Void] 
+  def sum [T <: NonEmptyTuple] (tuple: Tuple.Map[T, F]): F[OrdinalUnion[T]]
 }

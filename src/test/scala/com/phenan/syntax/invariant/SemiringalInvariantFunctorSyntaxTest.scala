@@ -6,6 +6,7 @@ import org.junit.Assert._
 import com.phenan.classes._
 import com.phenan.generic.{given _}
 import com.phenan.syntax.semiringal.{given _}
+import com.phenan.util.{given _, _}
 
 given optionSemiringalInvariantFunctor : SemiringalInvariantFunctor[Option] {
   def product [A, B <: Tuple] (a: => Option[A], b: => Option[B]): Option[A *: B] = for {
@@ -15,9 +16,17 @@ given optionSemiringalInvariantFunctor : SemiringalInvariantFunctor[Option] {
 
   def pure [A] (a: => A): Option[A] = Some(a)
 
-  def sum [A, B] (a: => Option[A], b: => Option[B]): Option[A | B] = a.orElse(b)
-  
-  def zero: Option[Void] = None
+  def sum [T <: NonEmptyTuple] (tuple: Tuple.Map[T, Option]): Option[OrdinalUnion[T]] = {
+    val array = tuple.toArray 
+    sumHelper(array, 0, array.size)
+  }
+
+  private def sumHelper [T <: NonEmptyTuple] (tuple: Array[Object], index: Int, length: Int): Option[OrdinalUnion[T]] = {
+    if (index < length) tuple(index) match {
+      case Some(u) => Some(OrdinalUnion.buildUnsafe[T](u.asInstanceOf[Union[T]], index, length))
+      case _       => sumHelper(tuple, index + 1, length)
+    } else None
+  }
 
   def xmap [A, B] (f: A <=> B): Option[A] <=> Option[B] = new Iso[Function1, Option[A], Option[B]] {
     def from: Option[A] => Option[B] = _.map(f.from)

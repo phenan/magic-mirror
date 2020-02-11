@@ -1,18 +1,28 @@
 package com.phenan.util
 
-class OrdinalUnion [T <: NonEmptyTuple] private (val union: Union[T], ordinal: Int) {
-  def getAs [E] (using proof: Tuples.Contain[T, E], valueOf: ValueOf[Tuples.IndexOf[T, E]]): Option[E] = {
-    if (valueOf.value == ordinal) Some(union.asInstanceOf[E])
-    else None
-  }
-}
+import scala.compiletime.ops.int._
+
+type OrdinalUnion [T <: NonEmptyTuple] = OrdinalUnion.OrdinalUnionImpl[Union[T]]
 
 object OrdinalUnion {
-  def apply [T <: NonEmptyTuple, E] (e: E)(using proof: Tuples.Contain[T, E], valueOf: ValueOf[Tuples.IndexOf[T, E]]): OrdinalUnion[T] = {
-    new OrdinalUnion[T](e.asInstanceOf[Union[T]], valueOf.value)
-  }
+  case class OrdinalUnionImpl [+U] (val value: U, val reverseOrdinal: Int)
 
-  def buildUnsafe [T <: NonEmptyTuple] (union: Union[T], ordinal: Int): OrdinalUnion[T] = {
-    new OrdinalUnion[T](union, ordinal)
+  def apply [T <: NonEmptyTuple, E] (e: E)(using proof: Tuples.Contain[T, E], valueOf: ValueOf[Tuple.Size[T] - Tuples.IndexOf[T, E]]): OrdinalUnion[T] = {
+    new OrdinalUnionImpl[Union[T]](e.asInstanceOf[Union[T]], valueOf.value)
+  }
+  def buildUnsafe [T <: NonEmptyTuple] (union: Union[T], ordinal: Int, length: Int): OrdinalUnion[T] = {
+    new OrdinalUnionImpl[Union[T]](union, length - ordinal)
+  } 
+}
+
+def [T <: NonEmptyTuple] (union: OrdinalUnion[T]) getAsNthUntyped (n: Int)(using length: ValueOf[Tuple.Size[T]]): Any = {
+  if (length.value - union.reverseOrdinal == n) Some(union.value)
+  else None
+}
+
+def [H, T <: NonEmptyTuple, R] (union: OrdinalUnion[H *: T]) fold (f: H => R)(g: OrdinalUnion[T] => R)(using length: ValueOf[Tuple.Size[H *: T]]): R = {
+  union.getAsNthUntyped(0)(using length) match {
+    case Some(value) => f(value.asInstanceOf[H])
+    case None        => g(union.asInstanceOf[OrdinalUnion[T]])
   }
 }
