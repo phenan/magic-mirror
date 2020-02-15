@@ -10,7 +10,7 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "magic-mirror" % "0.8.0"
+libraryDependencies += "com.phenan" %% "magic-mirror" % "0.8.1"
 ```
 
 This library is developped on Dotty version 0.22.0-RC1.
@@ -40,19 +40,23 @@ sealed trait Foo
 case class Bar (a: Int, b: String) extends Foo
 case class Baz (c: String) extends Foo
 
-import com.phenan.generic._
+import com.phenan.generic.{given _, _}
 import com.phenan.util._
-import com.phenan.generic.{given _}
 
-val generic1 = summon[Generic[Bar, (Int, String)]]
+val generic1 = summon[ProductGeneric[Bar, (Int, String)]]
 
-val x: Bar = generic1.from((10, "bar"))     // Bar(10, "bar")
-val y: (Int, String) = generic1.to(x)       // (10, "bar")
+val a: Bar = generic1.fromUnderlying((10, "bar"))     // Bar(10, "bar")
+val b: (Int, String) = generic1.toUnderlying(a)       // (10, "bar")
 
-val generic2 = summon[Generic[Foo, Union[(Bar, Baz)]]]
+val generic2 = summon[UnionGeneric[Foo, (Bar, Baz)]]
 
-val z: Bar | Baz = generic2.to(Baz("baz"))  // Baz("baz") : Bar | Baz
-val w: Foo = generic2.from(z)               // Baz("baz") : Foo
+val c: Bar | Baz = generic2.toUnderlying(Baz("baz"))  // Baz("baz") : Bar | Baz
+val d: Foo = generic2.fromUnderlying(c)               // Baz("baz") : Foo
+
+val generic3 = summon[CoproductGeneric[Foo, (Bar, Baz)]]
+
+val e: Bar |: Baz |: CNil = generic3.toUnderlying(Baz("baz"))
+val f: Foo = generic3.fromUnderlying(e)
 ```
 
 ## Lens
