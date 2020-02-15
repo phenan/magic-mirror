@@ -12,7 +12,7 @@ class SimplePrinter[T] (print: T => String) {
   def runPrinter (value: T): String = print(value)
 }
 
-given simplePrinterTextProcessor : TextProcessor[SimplePrinter] {
+given simplePrinterTextProcessor : TextProcessor[SimplePrinter, Char] {
   def xmap [A, B] (f: A <=> B): SimplePrinter[A] <=> SimplePrinter[B] = new Iso[Function1, SimplePrinter[A], SimplePrinter[B]] {
     def from: SimplePrinter[A] => SimplePrinter[B] = pa => new SimplePrinter(b => pa.runPrinter(f.to(b)))
     def to: SimplePrinter[B] => SimplePrinter[A] = pb => new SimplePrinter(a => pb.runPrinter(f.from(a)))
@@ -31,6 +31,8 @@ given simplePrinterTextProcessor : TextProcessor[SimplePrinter] {
   def zero: SimplePrinter[CNil] = new SimplePrinter(_ => "")
 
   def processString (string: String): SimplePrinter[Unit] = new SimplePrinter[Unit] ({ _ => string })
+
+  def satisfy (condition: Char => Boolean): SimplePrinter[Char] = new SimplePrinter[Char] (_.toString)
 }
 
 case object Foo
@@ -39,8 +41,13 @@ case class Bar (foo: Foo.type)
 
 case class Baz (foo: Foo.type, bar: Bar)
 
+def satisfy [F[_], E] (condition: E => Boolean)(using processor: TextProcessor[F, E]): F[E] = processor.satisfy(condition)
+
 class TextProcessorTest {
   @Test def testPrintSimpleString(): Unit = {
+    val digit: SimplePrinter[Char] = satisfy(_.isDigit)
+    val nonZeroDigit: SimplePrinter[Char] = satisfy(ch => '1' <= ch && ch <= '9')
+
     val foo: SimplePrinter[Foo.type] = w"foo"
     val bar: SimplePrinter[Bar] = w"bar $foo"
     val baz: SimplePrinter[Baz] = w"baz $foo hoge $bar"

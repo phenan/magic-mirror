@@ -34,4 +34,3 @@ class MonoidalInvariantFunctorSyntaxTest {
     assertEquals(x, None)
   }
 }
-

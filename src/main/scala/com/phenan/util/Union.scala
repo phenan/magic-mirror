@@ -1,10 +1,12 @@
 package com.phenan.util
 
-type Union[T <: NonEmptyTuple] = Union.UnionOf[Tuple.Head[T], Tuple.Tail[T]]
-
 object Union {
-  type UnionOf [A, T <: Tuple] = T match {
-    case e *: es => A | UnionOf[e, es]
+  type Of [T <: Tuple] = T match {
+    case e *: es => UnionImpl[e, es]
+    case Unit    => Void
+  }
+  type UnionImpl [A, T <: Tuple] = T match {
+    case e *: es => A | UnionImpl[e, es]
     case Unit    => A
   }
 }

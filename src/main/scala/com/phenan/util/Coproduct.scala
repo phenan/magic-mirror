@@ -34,9 +34,9 @@ object Coproduct {
     def apply [T <: Tuple]: Builder[Of[T]] = new Builder
   }
 
-  def toUnion [T <: NonEmptyTuple] (c: Coproduct.Of[T]): Union[T] = c.getValueUnsafe.asInstanceOf[Union[T]]
+  def toUnion [T <: Tuple] (c: Coproduct.Of[T]): Union.Of[T] = c.getValueUnsafe.asInstanceOf[Union.Of[T]]
   
-  def fromUnion [T <: NonEmptyTuple] (union: Union[T], ordinal: Int): Coproduct.Of[T] = {
+  def fromUnion [T <: Tuple] (union: Union.Of[T], ordinal: Int): Coproduct.Of[T] = {
     fromUnionUntyped(union, ordinal).asInstanceOf[Coproduct.Of[T]]
   }  
 

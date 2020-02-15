@@ -5,23 +5,32 @@ import com.phenan.util._
 
 import scala.deriving._
 
-trait Generic [T, R] extends <=> [R, T]
+trait Generic [T, U] {
+  def fromUnderlying (underlying: U): T
+  def toUnderlying (value: T): U
 
-given genericFromProductMirror [T <: Product, R <: Tuple] (using mirror: Mirror.ProductOf[T], proof: mirror.MirroredElemTypes =:= R): Generic[T, R] {
-  def from: R => T = {
+  def toIso: T <=> U = Iso[Function1, T, U](toUnderlying)(fromUnderlying)
+}
+
+class ProductGeneric [T <: Product, U <: Tuple] (val mirror: Mirror.ProductOf[T])(using mirror.MirroredElemTypes =:= U) extends Generic[T, U] {
+  override def fromUnderlying (underlying: U): T = underlying match {
     case p: Product => mirror.fromProduct(p)
     case ()         => mirror.fromProduct(EmptyProduct)
     case t          => mirror.fromProduct(new ArrayProduct(t.toArray))
   }
-  def to: T => R = t => Tuple.fromProductTyped(t).asInstanceOf[R]
+  override def toUnderlying (value: T): U = Tuple.fromProductTyped(value)(using mirror).asInstanceOf[U]
 }
 
-given genericFromSumMirror [T, R <: NonEmptyTuple] (using mirror: Mirror.SumOf[T], proof: mirror.MirroredElemTypes =:= R): Generic[T, Union[R]] {
-  def from: Union[R] => T = _.asInstanceOf[T]
-  def to: T => Union[R] = _.asInstanceOf[Union[R]]
+class UnionGeneric [T, U <: Tuple] (val mirror: Mirror.SumOf[T])(using mirror.MirroredElemTypes =:= U) extends Generic[T, Union.Of[U]] {
+  override def fromUnderlying (underlying: Union.Of[U]): T = underlying.asInstanceOf[T]
+  override def toUnderlying (value: T): Union.Of[U] = value.asInstanceOf[Union.Of[U]]
 }
 
-given coproductGenericFromSumMirror [T, R <: NonEmptyTuple] (using mirror: Mirror.SumOf[T], proof: mirror.MirroredElemTypes =:= R): Generic[T, Coproduct.Of[R]] {
-  def from: Coproduct.Of[R] => T = c => Coproduct.toUnion[R](c).asInstanceOf[T]
-  def to: T => Coproduct.Of[R] = t => Coproduct.fromUnion[R](t.asInstanceOf[Union[R]], mirror.ordinal(t))
+class CoproductGeneric [T, U <: Tuple] (val mirror: Mirror.SumOf[T])(using mirror.MirroredElemTypes =:= U) extends Generic[T, Coproduct.Of[U]] {
+  override def fromUnderlying (underlying: Coproduct.Of[U]): T = Coproduct.toUnion[U](underlying).asInstanceOf[T]
+  override def toUnderlying (value: T): Coproduct.Of[U] = Coproduct.fromUnion[U](value.asInstanceOf[Union.Of[U]], mirror.ordinal(value))
 }
+
+given productGeneric [T <: Product, U <: Tuple] (using mirror: Mirror.ProductOf[T], proof: mirror.MirroredElemTypes =:= U): ProductGeneric[T, U] = new ProductGeneric(mirror)
+given unionGeneric [T, U <: Tuple] (using mirror: Mirror.SumOf[T], proof: mirror.MirroredElemTypes =:= U): UnionGeneric[T, U] = new UnionGeneric(mirror)
+given coproductGeneric [T, U <: Tuple] (using mirror: Mirror.SumOf[T], proof: mirror.MirroredElemTypes =:= U): CoproductGeneric[T, U] = new CoproductGeneric(mirror)
