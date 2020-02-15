@@ -5,6 +5,7 @@ import org.junit.Assert._
 
 import com.phenan.classes._
 import com.phenan.generic.{given _}
+import com.phenan.hkd.{given _}
 import com.phenan.syntax.monoidal.{given _}
 
 given optionMonoidalInvariantFunctor : MonoidalInvariantFunctor[Option] {

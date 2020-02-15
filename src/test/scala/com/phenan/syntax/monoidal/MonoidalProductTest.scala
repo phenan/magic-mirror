@@ -1,6 +1,7 @@
 package com.phenan.syntax.monoidal
 
 import com.phenan.classes._
+import com.phenan.hkd.{given _}
 
 import org.junit.Test
 import org.junit.Assert._

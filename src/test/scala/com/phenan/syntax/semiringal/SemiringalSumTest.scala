@@ -1,6 +1,7 @@
 package com.phenan.syntax.semiringal
 
 import com.phenan.classes._
+import com.phenan.hkd.{given _}
 import com.phenan.util.{given _, _}
 
 import org.junit.Test

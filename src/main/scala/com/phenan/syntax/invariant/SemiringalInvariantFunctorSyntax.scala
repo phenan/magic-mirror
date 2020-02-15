@@ -5,13 +5,14 @@ import com.phenan.syntax.semiringal._
 import com.phenan.util._
 
 import com.phenan.generic.{given _, _}
-import com.phenan.syntax.monoidal.{given _}
-import com.phenan.syntax.semiringal.{given _}
+import com.phenan.hkd.{given _, _}
+import com.phenan.syntax.monoidal._
+import com.phenan.syntax.semiringal._
 
 import MonoidalInvariantFunctorSyntax._
 
 object SemiringalInvariantFunctorSyntax {
-  def select [F[_], T <: NonEmptyTuple, R] (tuple: Tuple.Map[T, F])(using semiringalInvariant: SemiringalInvariantFunctor[F], semiringalSum: SemiringalSum[T, F], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
+  def select [F[_], T <: NonEmptyTuple, R] (tuple: Tuple.Map[T, F])(using semiringalInvariant: SemiringalInvariantFunctor[F], tupleFoldable: HKTupleFoldable[T], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
     semiringalInvariant.xmap[R, Coproduct.Of[T]](coproductGeneric.toIso).to(SemiringalSum.sumAll(tuple))
   }
 
