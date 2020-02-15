@@ -10,7 +10,7 @@ You should add the following to your `build.sbt`.
 ```
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.phenan" %% "magic-mirror" % "0.8.1"
+libraryDependencies += "com.phenan" %% "magic-mirror" % "0.8.2"
 ```
 
 This library is developped on Dotty version 0.22.0-RC1.
