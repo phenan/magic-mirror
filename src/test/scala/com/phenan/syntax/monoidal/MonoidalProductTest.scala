@@ -1,7 +1,7 @@
 package com.phenan.syntax.monoidal
 
 import com.phenan.classes._
-import com.phenan.hkd.{given _}
+import com.phenan.hkd.{given _, _}
 
 import org.junit.Test
 import org.junit.Assert._
@@ -17,12 +17,12 @@ given optionMonoidal : Monoidal[Option] {
 
 class MonoidalProductTest {
   @Test def testProductSomes(): Unit = {
-    val x = MonoidalProduct.productAll[(Int, String, Double), Option]((Some(1), Some("foo"), Some(10.0)))
+    val x = MonoidalProduct.productAll(HKTuple[(Int, String, Double), Option](Some(1), Some("foo"), Some(10.0)))
     assertEquals(x, Some((1, "foo", 10.0)))
   }
 
   @Test def testProductContainsNone(): Unit = {
-    val x = MonoidalProduct.productAll[(String, Double), Option]((Some("foo"), None))
+    val x = MonoidalProduct.productAll(HKTuple[(String, Double), Option](Some("foo"), None))
     assertEquals(x, None)
   }
 }

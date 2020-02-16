@@ -14,7 +14,7 @@ object MonoidalInvariantFunctorSyntax {
     monoidalInvariant.xmap(Iso[Function1, Tuple1[T], T](_._1)(_ *: ())).from(monoidalInvariant.product(ft, fu))
   }
 
-  def construct [F[_], T <: Tuple, R <: Product] (tuple: Tuple.Map[T, F])(using monoidalInvariant: MonoidalInvariantFunctor[F], tupleFoldable: HKTupleFoldable[T], productGeneric: ProductGeneric[R, T]): F[R] = {    
+  def construct [F[_], T <: Tuple, R <: Product] (tuple: HKTuple[T, F])(using monoidalInvariant: MonoidalInvariantFunctor[F], tupleFoldable: HKTupleFoldable[T], productGeneric: ProductGeneric[R, T]): F[R] = {    
     monoidalInvariant.xmap[R, T](productGeneric.toIso).to(MonoidalProduct.productAll[T, F](tuple))
   }
 }

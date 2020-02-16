@@ -1,7 +1,7 @@
 package com.phenan.syntax.semiringal
 
 import com.phenan.classes._
-import com.phenan.hkd.{given _}
+import com.phenan.hkd.{given _, _}
 import com.phenan.util.{given _, _}
 
 import org.junit.Test
@@ -24,12 +24,12 @@ given optionalSemiringal : Semiringal[Option] {
 
 class SemiringalSumTest {
   @Test def testSumOfSome (): Unit = {
-    val x = SemiringalSum.sumAll[(String, Int, Double), Option]((None, Some(1), Some(2.0)))
+    val x = SemiringalSum.sumAll(HKTuple[(String, Int, Double), Option](None, Some(1), Some(2.0)))
     assertEquals(x, Some(Coproduct.Of[(String, Int, Double)](1)))
   }
 
   @Test def testSumOfNone (): Unit = {
-    val x = SemiringalSum.sumAll[(Int, String, Int, Double), Option]((None, None, None, None))
+    val x = SemiringalSum.sumAll(HKTuple[(Int, String, Int, Double), Option](None, None, None, None))
     assertEquals(x, None)
   }
 }

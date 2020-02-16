@@ -24,11 +24,11 @@ trait HKTupleFoldable [T <: Tuple] {
   def foldRight [F[_], G[_ <: Tuple]] (tuple: HKTuple[T, F], init: => F[G[Unit]], f: HKTuple.FoldBody[F, G]): F[G[T]]
 }
 
-given unitTupleFoldable : HKTupleFoldable[Unit] {
+given unitHKTupleFoldable : HKTupleFoldable[Unit] {
   def foldRight [F[_], G[_ <: Tuple]] (tuple: HKTuple[Unit, F], init: => F[G[Unit]], f: HKTuple.FoldBody[F, G]): F[G[Unit]] = init
 }
 
-given nonEmptyTupleFoldable [H, T <: Tuple] (using foldable: HKTupleFoldable[T]): HKTupleFoldable[H *: T] {
+given nonEmptyHKTupleFoldable [H, T <: Tuple] (using foldable: HKTupleFoldable[T]): HKTupleFoldable[H *: T] {
   def foldRight [F[_], G[_ <: Tuple]] (tuple: HKTuple[H *: T, F], init: => F[G[Unit]], f: HKTuple.FoldBody[F, G]): F[G[H *: T]] = {
     f(HKTuple.headOf(tuple), foldable.foldRight(HKTuple.tailOf(tuple), init, f))
   }

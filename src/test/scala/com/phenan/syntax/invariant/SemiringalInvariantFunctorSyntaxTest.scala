@@ -5,7 +5,7 @@ import org.junit.Assert._
 
 import com.phenan.classes._
 import com.phenan.generic.{given _}
-import com.phenan.hkd.{given _}
+import com.phenan.hkd.{given _, _}
 import com.phenan.syntax.semiringal.{given _}
 import com.phenan.util.{given _, _}
 
@@ -36,12 +36,12 @@ enum Bar {
 
 class SemiringalInvariantFunctorSyntaxTest {
   @Test def testSelectFromGeneric(): Unit = {
-    val x: Option[Bar] = SemiringalInvariantFunctorSyntax.select[Option, (Bar.Bar1, Bar.Bar2), Bar]((None, Some(new Bar.Bar2(10.0))))
+    val x: Option[Bar] = SemiringalInvariantFunctorSyntax.select[Option, (Bar.Bar1, Bar.Bar2), Bar](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, Some(new Bar.Bar2(10.0))))
     assertEquals(x, Some(Bar.Bar2(10.0)))
   }
 
   @Test def testSelectNone(): Unit = {
-    val x: Option[Bar] = SemiringalInvariantFunctorSyntax.select[Option, (Bar.Bar1, Bar.Bar2), Bar]((None, None))
+    val x: Option[Bar] = SemiringalInvariantFunctorSyntax.select[Option, (Bar.Bar1, Bar.Bar2), Bar](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, None))
     assertEquals(x, None)
   }
 }
