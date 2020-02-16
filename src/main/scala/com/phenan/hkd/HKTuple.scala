@@ -1,5 +1,8 @@
 package com.phenan.hkd
 
+import com.phenan.classes._
+import com.phenan.util._
+
 /* HKTuple is a wrapper type of Tuple.Map.
  * We use HKTuple instead of Tuple.Map because dotty compiler cannot regard Tuple.Map[Unit, F] as a subtype of Tuple.Map[T, F].
  */
@@ -13,6 +16,14 @@ object HKTuple {
 
   def foldRight [T <: Tuple, F[_], R[_ <: Tuple]] (tuple: HKTuple[T, F], init: => R[Unit], f: [e, es <: Tuple] => (F[e], R[es]) => R[e *: es])(using foldable: HKTupleFoldable[T]): R[T] = {
     foldable.foldRight[F, R](tuple, init, f)
+  }
+
+  def productAll [T <: Tuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], monoidal: Monoidal[F]): F[T] = {
+    foldable.foldRight[F, F](tuple, monoidal.pure(()), [e, es <: Tuple] => (value: F[e], accum: F[es]) => monoidal.product(value, accum))
+  }
+
+  def sumAll [T <: NonEmptyTuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], semiringal: Semiringal[F]): F[Coproduct.Of[T]] = {
+    foldable.foldRight[F, [x <: Tuple] =>> F[Coproduct.Of[x]]](tuple, semiringal.zero, [e, es <: Tuple] => (value: F[e], accum: F[Coproduct.Of[es]]) => semiringal.sum(value, accum))
   }
 }
 
