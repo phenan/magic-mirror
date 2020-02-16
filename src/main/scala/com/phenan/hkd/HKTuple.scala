@@ -11,25 +11,25 @@ object HKTuple {
   def headOf [H, T <: Tuple, F[_]] (tuple: HKTuple[H *: T, F]): F[H] = tuple.head
   def tailOf [H, T <: Tuple, F[_]] (tuple: HKTuple[H *: T, F]): HKTuple[T, F] = tuple.tail
 
-  trait FoldBody [F[_], G[_ <: Tuple]] {
-    def apply [H, T <: Tuple] (value: F[H], accum: F[G[T]]): F[G[H *: T]]
+  trait FoldBody [F[_], R[_ <: Tuple]] {
+    def apply [H, T <: Tuple] (value: F[H], accum: R[T]): R[H *: T]
   }
 
-  def foldRight [T <: Tuple, F[_], G[_ <: Tuple]] (tuple: HKTuple[T, F], init: => F[G[Unit]], f: FoldBody[F, G])(using foldable: HKTupleFoldable[T]): F[G[T]] = {
-    foldable.foldRight[F, G](tuple, init, f)
+  def foldRight [T <: Tuple, F[_], R[_ <: Tuple]] (tuple: HKTuple[T, F], init: => R[Unit], f: FoldBody[F, R])(using foldable: HKTupleFoldable[T]): R[T] = {
+    foldable.foldRight[F, R](tuple, init, f)
   }
 }
 
 trait HKTupleFoldable [T <: Tuple] {
-  def foldRight [F[_], G[_ <: Tuple]] (tuple: HKTuple[T, F], init: => F[G[Unit]], f: HKTuple.FoldBody[F, G]): F[G[T]]
+  def foldRight [F[_], R[_ <: Tuple]] (tuple: HKTuple[T, F], init: => R[Unit], f: HKTuple.FoldBody[F, R]): R[T]
 }
 
 given unitHKTupleFoldable : HKTupleFoldable[Unit] {
-  def foldRight [F[_], G[_ <: Tuple]] (tuple: HKTuple[Unit, F], init: => F[G[Unit]], f: HKTuple.FoldBody[F, G]): F[G[Unit]] = init
+  def foldRight [F[_], R[_ <: Tuple]] (tuple: HKTuple[Unit, F], init: => R[Unit], f: HKTuple.FoldBody[F, R]): R[Unit] = init
 }
 
 given nonEmptyHKTupleFoldable [H, T <: Tuple] (using foldable: HKTupleFoldable[T]): HKTupleFoldable[H *: T] {
-  def foldRight [F[_], G[_ <: Tuple]] (tuple: HKTuple[H *: T, F], init: => F[G[Unit]], f: HKTuple.FoldBody[F, G]): F[G[H *: T]] = {
+  def foldRight [F[_], R[_ <: Tuple]] (tuple: HKTuple[H *: T, F], init: => R[Unit], f: HKTuple.FoldBody[F, R]): R[H *: T] = {
     f(HKTuple.headOf(tuple), foldable.foldRight(HKTuple.tailOf(tuple), init, f))
   }
 }
