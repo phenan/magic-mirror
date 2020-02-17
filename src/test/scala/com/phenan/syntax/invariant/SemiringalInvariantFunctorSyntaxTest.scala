@@ -6,7 +6,6 @@ import org.junit.Assert._
 import com.phenan.classes._
 import com.phenan.generic.{given _}
 import com.phenan.hkd.{given _, _}
-import com.phenan.syntax.semiringal.{given _}
 import com.phenan.util.{given _, _}
 
 given optionSemiringalInvariantFunctor : SemiringalInvariantFunctor[Option] {

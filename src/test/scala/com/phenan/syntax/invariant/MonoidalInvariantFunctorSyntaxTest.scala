@@ -6,7 +6,6 @@ import org.junit.Assert._
 import com.phenan.classes._
 import com.phenan.generic.{given _}
 import com.phenan.hkd.{given _, _}
-import com.phenan.syntax.monoidal.{given _}
 
 given optionMonoidalInvariantFunctor : MonoidalInvariantFunctor[Option] {
   def product [A, B <: Tuple] (a: => Option[A], b: => Option[B]): Option[A *: B] = for {

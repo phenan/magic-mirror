@@ -4,7 +4,6 @@ import com.phenan.classes._
 import com.phenan.generic._
 import com.phenan.hkd._
 import com.phenan.syntax.invariant._
-import com.phenan.syntax.monoidal._
 
 import MonoidalInvariantFunctorSyntax._
 
