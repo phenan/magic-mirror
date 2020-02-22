@@ -1,7 +1,12 @@
 package com.phenan.hkd
 
 import com.phenan.classes._
+import com.phenan.generic._
+import com.phenan.lens._
 import com.phenan.util._
+
+import scala.compiletime._
+import scala.compiletime.ops.int._
 
 /* HKTuple is a wrapper type of Tuple.Map.
  * We use HKTuple instead of Tuple.Map because dotty compiler cannot regard Tuple.Map[Unit, F] as a subtype of Tuple.Map[T, F].
@@ -25,6 +30,14 @@ object HKTuple {
   def sumAll [T <: NonEmptyTuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], semiringal: Semiringal[F]): F[Coproduct.Of[T]] = {
     foldable.foldRight[F, [x <: Tuple] =>> F[Coproduct.Of[x]]](tuple, semiringal.zero, [e, es <: Tuple] => (value: F[e], accum: F[Coproduct.Of[es]]) => semiringal.sum(value, accum))
   }
+
+  def construct [T <: Tuple, R <: Product, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], monoidalInv: MonoidalInvariantFunctor[F], productGeneric: ProductGeneric[R, T]): F[R] = {
+    monoidalInv.xmap(productGeneric.toIso).to(productAll(tuple))
+  }
+
+  def bundle [T <: NonEmptyTuple, R, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], semiringalInv: SemiringalInvariantFunctor[F], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
+    semiringalInv.xmap(coproductGeneric.toIso).to(sumAll(tuple))
+  }
 }
 
 trait HKTupleFoldable [T <: Tuple] {
@@ -39,4 +52,17 @@ given nonEmptyHKTupleFoldable [H, T <: Tuple] (using foldable: HKTupleFoldable[T
   def foldRight [F[_], R[_ <: Tuple]] (tuple: HKTuple[H *: T, F], init: => R[Unit], f: [e, es <: Tuple] => (F[e], R[es]) => R[e *: es]): R[H *: T] = {
     f[H, T](HKTuple.headOf(tuple), foldable.foldRight(HKTuple.tailOf(tuple), init, f.asInstanceOf))
   }
+}
+
+class HKTupleLens [T <: Tuple, F[_], I <: Int] (getter: HKTuple[T, F] => F[Tuple.Elem[T, I]], setter: HKTuple[T, F] => F[Tuple.Elem[T, I]] => HKTuple[T, F]) extends StandardLens[HKTuple[T, F], F[Tuple.Elem[T, I]]](getter, setter)
+
+given hkTupleLens [T <: Tuple, F[_], I <: Int] (using valueOf: ValueOf[I], indexCheck: I < Tuple.Size[T] =:= true): HKTupleLens[T, F, I] = {
+  def getter: HKTuple[T, F] => F[Tuple.Elem[T, I]] = { t => 
+    t.asInstanceOf[Product].productElement(valueOf.value).asInstanceOf[F[Tuple.Elem[T, I]]]
+  }
+  def setter: HKTuple[T, F] => F[Tuple.Elem[T, I]] => HKTuple[T, F] = { t => e => 
+    val (init, _ *: tail) = t.splitAt(valueOf.value)
+    (init ++ e *: tail).asInstanceOf[HKTuple[T, F]]
+  }
+  new HKTupleLens(getter, setter)
 }

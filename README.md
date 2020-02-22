@@ -1,5 +1,5 @@
 # magic-mirror
-Implementation of `Generic` and `Lens` in Dotty
+Implementation of `Generic`, `Lens`, and `HKD` in Dotty
 
 [ ![Download](https://api.bintray.com/packages/phenan/maven/magic-mirror/images/download.svg) ](https://bintray.com/phenan/maven/magic-mirror/_latestVersion)
 
@@ -92,6 +92,39 @@ println(aLens.set(Foo(1, "foo", 2))(5))  // Foo(5, "foo", 2)
 
 // println(aLens.set(Foo(1, "foo", 2))("foo"))  // compile error!
 // val dLens = MirrorLens[Foo].d                // compile error!
+```
+
+## HKD
+
+Higher-kinded data (`HKD`) is a data type that is parameterized by something of kind * -> *.
+For example, `HKD[Foo, Option]` expresses a data type that wraps data type `Foo`, and all fields are wrapped by `Option`.
+The fields of `HKD[Foo, Option]` can be accessed by regular syntax of field access, such as `hkd.bar`.
+The fields of `HKD[Foo, Option]` is mutable and we can also use assignment syntax.
+We can easily translate `HKD[Foo, Option]` into `Option[Foo]` by simply call `build` method.
+
+### Sample
+
+```
+import com.phenan.hkd.{given _, _}
+import com.phenan.lens.{given _}
+import com.phenan.util.{given _}
+
+// import instance declaration of MonoidalInvariantFunctor[Option]
+
+case class Foo (a: Int, b: String)
+
+val hkd = HKD[Foo, Option](Some(10), None)
+// val hkd2 = HKD[Foo, Option](Some("hoge"), Some(10))   // compile error!
+
+val x = hkd.a        // Some(10)
+val y = hkd.b        // None
+// val z = hkd.c     // compile error!
+
+hkd.a = Some(20)
+hkd.b = Some("bar")
+// hkd.b = Some(10)  // compile error!
+
+val fooOpt: Option[Foo] = hkd.build   // Some(Foo(20, "bar"))
 ```
 
 ## Author
