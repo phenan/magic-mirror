@@ -30,6 +30,14 @@ class HKDTest {
     assertEquals(Some("foo"), hkd.b)
   }
 
+  @Test def testHKDSet (): Unit = {
+    val hkd = HKD[Foo, Option](None, Some("foo"))
+    assertEquals(None, hkd.a)
+    hkd.a = Some(20)
+    assertEquals(Some(20), hkd.a)
+    assertEquals(Some("foo"), hkd.b)
+  }
+
   @Test def testHKDBuildSome (): Unit = {
     val hkd = HKD[Foo, Option](Some(20), Some("bar"))
     assertEquals(Some(Foo(20, "bar")), hkd.build)
