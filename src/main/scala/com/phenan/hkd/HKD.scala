@@ -9,11 +9,7 @@ import scala.language.dynamics
 type HKD [R <: Product, F[_]] = HKStruct[R, F]
 
 object HKD {
-  def apply[R <: Product]: HKDBuilder[R] = new HKDBuilder[R]
-}
-
-class HKDBuilder [R <: Product] {
-  def apply[F[_]] (using mirror: Mirror.ProductOf[R])(value: Tuple.Map[mirror.MirroredElemTypes, F]): HKD[R, F] = {
+  def apply[R <: Product, F[_]] (using mirror: Mirror.ProductOf[R])(value: Tuple.Map[mirror.MirroredElemTypes, F]): HKD[R, F] = {
     new HKTupledStruct[R, mirror.MirroredElemTypes, F](value)
   }
 }
