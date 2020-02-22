@@ -1,7 +1,11 @@
 package com.phenan.hkd
 
 import com.phenan.classes._
+import com.phenan.lens._
 import com.phenan.util._
+
+import scala.compiletime._
+import scala.compiletime.ops.int._
 
 /* HKTuple is a wrapper type of Tuple.Map.
  * We use HKTuple instead of Tuple.Map because dotty compiler cannot regard Tuple.Map[Unit, F] as a subtype of Tuple.Map[T, F].
@@ -39,4 +43,17 @@ given nonEmptyHKTupleFoldable [H, T <: Tuple] (using foldable: HKTupleFoldable[T
   def foldRight [F[_], R[_ <: Tuple]] (tuple: HKTuple[H *: T, F], init: => R[Unit], f: [e, es <: Tuple] => (F[e], R[es]) => R[e *: es]): R[H *: T] = {
     f[H, T](HKTuple.headOf(tuple), foldable.foldRight(HKTuple.tailOf(tuple), init, f.asInstanceOf))
   }
+}
+
+class HKTupleLens [T <: Tuple, F[_], I <: Int] (getter: HKTuple[T, F] => F[Tuple.Elem[T, I]], setter: HKTuple[T, F] => F[Tuple.Elem[T, I]] => HKTuple[T, F]) extends StandardLens[HKTuple[T, F], F[Tuple.Elem[T, I]]](getter, setter)
+
+given hkTupleLens [T <: Tuple, F[_], I <: Int] (using valueOf: ValueOf[I], indexCheck: I < Tuple.Size[T] =:= true): HKTupleLens[T, F, I] = {
+  def getter: HKTuple[T, F] => F[Tuple.Elem[T, I]] = { t => 
+    t.asInstanceOf[Product].productElement(valueOf.value).asInstanceOf[F[Tuple.Elem[T, I]]]
+  }
+  def setter: HKTuple[T, F] => F[Tuple.Elem[T, I]] => HKTuple[T, F] = { t => e => 
+    val (init, _ *: tail) = t.splitAt(valueOf.value)
+    (init ++ e *: tail).asInstanceOf[HKTuple[T, F]]
+  }
+  new HKTupleLens(getter, setter)
 }
