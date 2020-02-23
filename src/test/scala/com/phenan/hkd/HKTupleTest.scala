@@ -9,6 +9,11 @@ import org.junit.Assert._
 
 case class Foobar (foo: Int, bar: String)
 
+enum Bar {
+  case Bar1 (x: String, y: Int)
+  case Bar2 (n: Double)
+}
+
 class HKTupleTest {
   @Test def testProductSomes(): Unit = {
     val x = HKTuple.productAll(HKTuple[(Int, String, Double), Option](Some(1), Some("foo"), Some(10.0)))
@@ -37,6 +42,16 @@ class HKTupleTest {
 
   @Test def testConstructNone (): Unit = {
     val x = HKTuple.construct[(Int, String), Foobar, Option](HKTuple[(Int, String), Option](Some(20), None))
+    assertEquals(None, x)
+  }
+
+  @Test def testBundleSome (): Unit = {
+    val x: Option[Bar] = HKTuple.bundle[(Bar.Bar1, Bar.Bar2), Bar, Option](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, Some(new Bar.Bar2(10.0))))
+    assertEquals(Some(Bar.Bar2(10.0)), x)
+  }
+
+  @Test def testBundleNone(): Unit = {
+    val x: Option[Bar] = HKTuple.bundle[(Bar.Bar1, Bar.Bar2), Bar, Option](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, None))
     assertEquals(None, x)
   }
 }
