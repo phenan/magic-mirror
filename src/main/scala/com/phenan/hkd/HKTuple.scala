@@ -31,12 +31,20 @@ object HKTuple {
     foldable.foldRight[F, [x <: Tuple] =>> F[Coproduct.Of[x]]](tuple, semiringal.zero, [e, es <: Tuple] => (value: F[e], accum: F[Coproduct.Of[es]]) => semiringal.sum(value, accum))
   }
 
-  def construct [T <: Tuple, R <: Product, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], monoidalInv: MonoidalInvariantFunctor[F], productGeneric: ProductGeneric[R, T]): F[R] = {
-    monoidalInv.xmap(productGeneric.toIso).to(productAll(tuple))
+  def construct [R <: Product]: HKTupleConstructHelper[R] = new HKTupleConstructHelper
+
+  def bundle [R]: HKTupleBundleHelper[R] = new HKTupleBundleHelper
+
+  class HKTupleConstructHelper [R <: Product] {
+    def apply [T <: Tuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], monoidalInv: MonoidalInvariantFunctor[F], productGeneric: ProductGeneric[R, T]): F[R] = {
+      monoidalInv.xmap(productGeneric.toIso).to(productAll(tuple))
+    }
   }
 
-  def bundle [T <: NonEmptyTuple, R, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], semiringalInv: SemiringalInvariantFunctor[F], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
-    semiringalInv.xmap(coproductGeneric.toIso).to(sumAll(tuple))
+  class HKTupleBundleHelper [R] {
+    def apply [T <: NonEmptyTuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], semiringalInv: SemiringalInvariantFunctor[F], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
+      semiringalInv.xmap(coproductGeneric.toIso).to(sumAll(tuple))
+    }
   }
 }
 

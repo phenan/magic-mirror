@@ -31,6 +31,6 @@ class HKTupledStruct [R <: Product, T <: Tuple, F[_]] (var underlying: HKTuple[T
   }
   def build (using mirror: Mirror.ProductOf[R], foldable: HKTupleFoldable[mirror.MirroredElemTypes], monoidalInv: MonoidalInvariantFunctor[F]): F[R] = {
     val generic = ProductGeneric[R, mirror.MirroredElemTypes](mirror)
-    HKTuple.construct[mirror.MirroredElemTypes, R, F](underlying.asInstanceOf[HKTuple[mirror.MirroredElemTypes, F]])(using foldable, monoidalInv, generic)
+    HKTuple.construct[R](underlying.asInstanceOf[HKTuple[mirror.MirroredElemTypes, F]])(using foldable, monoidalInv, generic)
   }
 }

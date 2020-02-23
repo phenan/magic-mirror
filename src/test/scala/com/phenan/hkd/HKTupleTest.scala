@@ -36,22 +36,22 @@ class HKTupleTest {
   }
 
   @Test def testConstructSome (): Unit = {
-    val x = HKTuple.construct[(Int, String), Foobar, Option](HKTuple[(Int, String), Option](Some(10), Some("foobar")))
+    val x = HKTuple.construct[Foobar](HKTuple[(Int, String), Option](Some(10), Some("foobar")))
     assertEquals(Some(Foobar(10, "foobar")), x)
   }
 
   @Test def testConstructNone (): Unit = {
-    val x = HKTuple.construct[(Int, String), Foobar, Option](HKTuple[(Int, String), Option](Some(20), None))
+    val x = HKTuple.construct[Foobar](HKTuple[(Int, String), Option](Some(20), None))
     assertEquals(None, x)
   }
 
   @Test def testBundleSome (): Unit = {
-    val x: Option[Bar] = HKTuple.bundle[(Bar.Bar1, Bar.Bar2), Bar, Option](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, Some(new Bar.Bar2(10.0))))
+    val x: Option[Bar] = HKTuple.bundle[Bar](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, Some(new Bar.Bar2(10.0))))
     assertEquals(Some(Bar.Bar2(10.0)), x)
   }
 
   @Test def testBundleNone(): Unit = {
-    val x: Option[Bar] = HKTuple.bundle[(Bar.Bar1, Bar.Bar2), Bar, Option](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, None))
+    val x: Option[Bar] = HKTuple.bundle[Bar](HKTuple[(Bar.Bar1, Bar.Bar2), Option](None, None))
     assertEquals(None, x)
   }
 }
