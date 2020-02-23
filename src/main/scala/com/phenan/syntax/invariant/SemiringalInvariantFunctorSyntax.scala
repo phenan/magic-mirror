@@ -1,23 +1,18 @@
 package com.phenan.syntax.invariant
 
 import com.phenan.classes._
-import com.phenan.util._
 
 import com.phenan.generic.{given _, _}
 import com.phenan.hkd.{given _, _}
 
-import MonoidalInvariantFunctorSyntax._
-
 object SemiringalInvariantFunctorSyntax {
-  def select [F[_], T <: NonEmptyTuple, R] (tuple: HKTuple[T, F])(using semiringalInvariant: SemiringalInvariantFunctor[F], tupleFoldable: HKTupleFoldable[T], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
-    semiringalInvariant.xmap[R, Coproduct.Of[T]](coproductGeneric.toIso).to(HKTuple.sumAll(tuple))
-  }
-
-  def rep [F[_], T] (ft: F[T])(using semiringalInvariant: SemiringalInvariantFunctor[F]): F[List[T]] = select(
-    HKTuple[(::[T], scala.collection.immutable.Nil.type), F](
-      construct(HKTuple[(T, List[T]), F](ft, rep(ft))),
-      construct(HKTuple[Unit, F](()))
+  def rep [F[_], T] (ft: F[T])(using semiringalInvariant: SemiringalInvariantFunctor[F]): F[List[T]] = {
+    HKTuple.bundle[List[T]](
+      HKTuple[(::[T], scala.collection.immutable.Nil.type), F](
+        HKTuple.construct[::[T]](HKTuple[(T, List[T]), F](ft, rep(ft))),
+        HKTuple.construct[scala.collection.immutable.Nil.type](HKTuple[Unit, F](()))
+      )
     )
-  )
+  }
 }
 
