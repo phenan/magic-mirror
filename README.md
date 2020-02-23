@@ -107,9 +107,8 @@ We can easily translate `HKD[Foo, Option]` into `Option[Foo]` by simply call `bu
 ```
 import com.phenan.hkd.{given _, _}
 import com.phenan.lens.{given _}
+import com.phenan.std.{given _}
 import com.phenan.util.{given _}
-
-// import instance declaration of MonoidalInvariantFunctor[Option]
 
 case class Foo (a: Int, b: String)
 

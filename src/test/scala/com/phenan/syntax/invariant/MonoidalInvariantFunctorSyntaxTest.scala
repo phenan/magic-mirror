@@ -3,23 +3,9 @@ package com.phenan.syntax.invariant
 import org.junit.Test
 import org.junit.Assert._
 
-import com.phenan.classes._
 import com.phenan.generic.{given _}
 import com.phenan.hkd.{given _, _}
-
-given optionMonoidalInvariantFunctor : MonoidalInvariantFunctor[Option] {
-  def product [A, B <: Tuple] (a: => Option[A], b: => Option[B]): Option[A *: B] = for {
-    x <- a
-    y <- b
-  } yield x *: y
-
-  def pure [A] (a: => A): Option[A] = Some(a)
-
-  def xmap [A, B] (f: A <=> B): Option[A] <=> Option[B] = new Iso[Function1, Option[A], Option[B]] {
-    def from: Option[A] => Option[B] = _.map(f.from)
-    def to: Option[B] => Option[A] = _.map(f.to)
-  }
-}
+import com.phenan.std.{given _}
 
 case class Foo (n: Int, s: String)
 

@@ -1,3 +1,3 @@
 package com.phenan.classes
 
-trait MonoidalInvariantFunctor [F[_]] extends Monoidal[F] with InvariantFunctor[F]
+type MonoidalInvariantFunctor [F[_]] = Monoidal[F] & InvariantFunctor[F]

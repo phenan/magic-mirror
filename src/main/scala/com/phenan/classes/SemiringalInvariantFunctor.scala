@@ -1,3 +1,3 @@
 package com.phenan.classes
 
-trait SemiringalInvariantFunctor [F[_]] extends Semiringal[F] with MonoidalInvariantFunctor[F]
+type SemiringalInvariantFunctor [F[_]] = Semiringal[F] & InvariantFunctor[F]
