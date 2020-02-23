@@ -19,7 +19,7 @@ object HKD {
 trait HKStruct [R <: Product, F[_]] extends Dynamic {
   def selectDynamic [L <: Singleton] (tag: L)(using mirror: Mirror.ProductOf[R], contains: Tuples.Contain[mirror.MirroredElemLabels, L], tupleLens: HKTupleLens[mirror.MirroredElemTypes, F, Tuples.IndexOf[mirror.MirroredElemLabels, L]]): F[Tuple.Elem[mirror.MirroredElemTypes, Tuples.IndexOf[mirror.MirroredElemLabels, L]]]
   def updateDynamic [L <: Singleton] (tag: L)(using mirror: Mirror.ProductOf[R], contains: Tuples.Contain[mirror.MirroredElemLabels, L], tupleLens: HKTupleLens[mirror.MirroredElemTypes, F, Tuples.IndexOf[mirror.MirroredElemLabels, L]])(value: F[Tuple.Elem[mirror.MirroredElemTypes, Tuples.IndexOf[mirror.MirroredElemLabels, L]]]): Unit
-  def build (using mirror: Mirror.ProductOf[R], foldable: HKTupleFoldable[mirror.MirroredElemTypes], monoidalInv: Monoidal[F] & InvariantFunctor[F]): F[R]
+  def build (using mirror: Mirror.ProductOf[R], foldable: HKTupleFoldable[mirror.MirroredElemTypes], monoidal: Monoidal[F], invariantFunctor: InvariantFunctor[F]): F[R]
 }
 
 class HKTupledStruct [R <: Product, T <: Tuple, F[_]] (var underlying: HKTuple[T, F]) extends HKStruct[R, F] {
@@ -29,8 +29,8 @@ class HKTupledStruct [R <: Product, T <: Tuple, F[_]] (var underlying: HKTuple[T
   def updateDynamic [L <: Singleton] (tag: L)(using mirror: Mirror.ProductOf[R], contains: Tuples.Contain[mirror.MirroredElemLabels, L], tupleLens: HKTupleLens[mirror.MirroredElemTypes, F, Tuples.IndexOf[mirror.MirroredElemLabels, L]])(value: F[Tuple.Elem[mirror.MirroredElemTypes, Tuples.IndexOf[mirror.MirroredElemLabels, L]]]): Unit = {
     underlying = tupleLens.set(underlying.asInstanceOf[HKTuple[mirror.MirroredElemTypes, F]])(value).asInstanceOf[HKTuple[T, F]]
   }
-  def build (using mirror: Mirror.ProductOf[R], foldable: HKTupleFoldable[mirror.MirroredElemTypes], monoidalInv: Monoidal[F] & InvariantFunctor[F]): F[R] = {
-    val generic = ProductGeneric[R, mirror.MirroredElemTypes](mirror)
-    HKTuple.construct[R](underlying.asInstanceOf[HKTuple[mirror.MirroredElemTypes, F]])(using foldable, monoidalInv, generic)
+  def build (using mirror: Mirror.ProductOf[R], foldable: HKTupleFoldable[mirror.MirroredElemTypes], monoidal: Monoidal[F], invariantFunctor: InvariantFunctor[F]): F[R] = {
+    given ProductGeneric[R, mirror.MirroredElemTypes] = ProductGeneric[R, mirror.MirroredElemTypes](mirror)
+    HKTuple.construct[R](underlying.asInstanceOf[HKTuple[mirror.MirroredElemTypes, F]])
   }
 }

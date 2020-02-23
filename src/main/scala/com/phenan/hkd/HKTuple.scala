@@ -36,14 +36,14 @@ object HKTuple {
   def bundle [R]: HKTupleBundleHelper[R] = new HKTupleBundleHelper
 
   class HKTupleConstructHelper [R <: Product] {
-    def apply [T <: Tuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], monoidalInv: Monoidal[F] & InvariantFunctor[F], productGeneric: ProductGeneric[R, T]): F[R] = {
-      monoidalInv.xmap(productGeneric.toIso).to(productAll(tuple))
+    def apply [T <: Tuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], monoidal: Monoidal[F], invariantFunctor: InvariantFunctor[F], productGeneric: ProductGeneric[R, T]): F[R] = {
+      invariantFunctor.xmap(productGeneric.toIso).to(productAll(tuple))
     }
   }
 
   class HKTupleBundleHelper [R] {
-    def apply [T <: NonEmptyTuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], semiringalInv: Semiringal[F] & InvariantFunctor[F], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
-      semiringalInv.xmap(coproductGeneric.toIso).to(sumAll(tuple))
+    def apply [T <: NonEmptyTuple, F[_]] (tuple: HKTuple[T, F])(using foldable: HKTupleFoldable[T], semiringal: Semiringal[F], invariantFunctor: InvariantFunctor[F], coproductGeneric: CoproductGeneric[R, T]): F[R] = {
+      invariantFunctor.xmap(coproductGeneric.toIso).to(sumAll(tuple))
     }
   }
 }
