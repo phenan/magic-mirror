@@ -1,17 +1,10 @@
 package com.phenan.std
 
 import com.phenan.classes._
-import com.phenan.util.{given _, _}
 
-given optionFunctor : Functor[Option] {
-  def map [A, B] (f: A => B): Option[A] => Option[B] = _.map(f)
-}
-
-given optionSemiringalFunctor : Semiringal[Option] {
-  def product [A, B <: Tuple] (a: => Option[A], b: => Option[B]): Option[A *: B] = for (x <- a; y <- b) yield x *: y
+given MonadPlus[Option] {
+  def flatMap [A, B] (f: A => Option[B]): Option[A] => Option[B] = _.flatMap(f)
   def pure [A] (a: => A): Option[A] = Some(a)
-  def sum [A, B <: Tuple] (fa: => Option[A], fb: => Option[Coproduct.Of[B]]): Option[Coproduct.Of[A *: B]] = {
-    fa.map(a => Coproduct.Of[A *: B](a)).orElse(fb.map(InRight(_)))
-  }
-  def zero: Option[CNil] = None
+  def plus [A] (a: => Option[A], b: => Option[A]): Option[A] = a.orElse(b)
+  def empty [A]: Option[A] = None
 }
