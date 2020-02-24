@@ -3,7 +3,7 @@ package com.phenan.classes
 import com.phenan.util._
 
 trait Alternative [F[_]] extends Applicative[F] with Semiringal[F] {
-  def ap [A, B] (f: F[A => B]): F[A] => F[B]
+  def combine [A, B <: Tuple, R] (a: => F[A], b: => F[B], f: A *: B => R): F[R]
   def pure [A] (a: => A): F[A]
   def plus [A] (a: => F[A], b: => F[A]): F[A]
   def empty [A]: F[A]
